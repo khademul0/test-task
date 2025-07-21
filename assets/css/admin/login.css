@@ -1,0 +1,94 @@
+/* Gradient Background for Full Page */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #667eea, #764ba2); /* blue to purple */
+
+  align-items: center;
+  justify-content: center;
+}
+.input-error {
+  border: 2px solid #dc3545 !important;
+  background-color: #ffecec;
+}
+.spinner-border {
+  border: 0.15em solid #fff;
+  border-top: 0.15em solid #007bff;
+  border-radius: 50%;
+  width: 1rem;
+  height: 1rem;
+  animation: spin 0.75s linear infinite;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Centered container */
+#login-form-box {
+  width: 100%;
+}
+
+/* Card Styling */
+.card {
+  border: none;
+  border-radius: 15px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Card Group fix if you use Bootstrap card-group */
+.card-group {
+  background: #fff;
+  border-radius: 15px;
+  overflow: hidden;
+}
+
+/* Input styles */
+.input-group-text {
+  background-color: #f1f1f1;
+  border: none;
+  border-right: 1px solid #ccc;
+}
+
+.form-control {
+  border-left: none;
+}
+
+/* Login Button */
+.btn-primary {
+  background-color: #4f46e5;
+  border: none;
+  padding: 0.5rem 1rem; /* smaller height and width */
+  font-size: 0.9rem; /* slightly smaller text */
+  transition: background 0.3s ease;
+  weight: 50%;
+}
+
+.btn-primary:hover {
+  background-color: #4338ca; /* slightly darker on hover */
+}
+/* Forgot password link */
+a {
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+.input-group-text {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 0.75rem;
+}
+.h-100vh {
+  height: 100vh;
+}
