@@ -53,7 +53,7 @@ $(document).ready(function () {
                         .addClass('alert alert-success')
                         .text(res.message);
                     setTimeout(function () {
-                        window.location.href = 'index.php'; // change this if needed
+                        window.location.href = res.redirect || 'dashboard.php';
                     }, 1500);
                 } else {
                     msgDiv
@@ -157,7 +157,6 @@ $(document).ready(function () {
                         .removeClass('d-none alert-danger')
                         .addClass('alert alert-success')
                         .text(res.message);
-                    // Reset form
                     $('#register-form')[0].reset();
                 } else {
                     msgDiv

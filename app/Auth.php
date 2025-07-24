@@ -1,23 +1,19 @@
 <?php
 
+// app/Auth.php
 namespace App;
 
 class Auth
 {
     public static function check()
     {
-        session_start();
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
         if (!isset($_SESSION['user_id'])) {
-            header('Location: ../login.php');
+            header('Location: /task-project/admin/login.php');
             exit;
         }
-    }
-
-    public static function logout()
-    {
-        session_start();
-        session_destroy();
-        header('Location: ../login.php');
-        exit;
     }
 }

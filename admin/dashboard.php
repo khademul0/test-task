@@ -29,7 +29,7 @@ Auth::check();
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
         <div class="container">
             <!-- Left Logo -->
-            <a class="navbar-brand fw-bold" href="index.php">
+            <a class="navbar-brand fw-bold" href="dashboard.php">
                 <i class="fas fa-shopping-cart me-2"></i>Netacart
             </a>
 
@@ -44,7 +44,7 @@ Auth::check();
                 <ul class="navbar-nav mb-2 mb-lg-0">
                     <!-- Home -->
                     <li class="nav-item">
-                        <a class="nav-link active" href="index.php">
+                        <a class="nav-link active" href="dashboard.php">
                             <i class="fas fa-home me-1"></i>Home
                         </a>
                     </li>
