@@ -21,7 +21,7 @@
 <!-- DataTables (make sure these files exist or use CDN) -->
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
-
+<script src="../assets/js/sweetalert2.all.min.js"></script>
 
 <!-- Custom -->
 <script src="../assets/js/admin/script.js"></script>

@@ -11,7 +11,11 @@ jQuery(document).ready(function () {
         var formData = new FormData(this);
 
         const site_url ="http://localhost/task-project/";
-
+Swal.fire({
+  title: "Good job!",
+  text: "You clicked the button!",
+  icon: "success"
+});
         $.ajax({
             url: site_url + 'admin/inc/action.php',
  // ✅ Replace with your actual backend handler if different
