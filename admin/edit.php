@@ -15,7 +15,6 @@ if ($res->num_rows === 0) {
 }
 
 $slide = $res->fetch_assoc();
-
 require_once __DIR__ . '/inc/header.php';
 ?>
 
@@ -62,15 +61,22 @@ require_once __DIR__ . '/inc/header.php';
       <div class="mb-3">
         <label class="form-label">Current Image</label><br>
         <?php if (!empty($slide['image']) && file_exists(__DIR__ . '/../assets/images/slides/' . $slide['image'])): ?>
-          <img src="../assets/images/slides/<?= $slide['image']; ?>" width="100" alt="Slide Image"><br><br>
+          <img src="../assets/images/slides/<?= $slide['image']; ?>" width="100" alt="Slide Image" id="currentImage"><br><br>
         <?php else: ?>
           <span class="text-muted">No Image</span><br><br>
         <?php endif; ?>
+
         <label class="form-label">Change Image (optional)</label>
-        <input type="file" name="image" class="form-control" accept="image/*">
+        <input type="file" name="image" class="form-control" accept="image/*" onchange="previewEditImage(event)">
+        <div class="mt-2">
+          <img id="preview" src="#" alt="Preview" style="max-height: 120px; display: none;" class="img-thumbnail">
+        </div>
       </div>
 
-      <button type="submit" class="btn btn-success"><i class="fas fa-save me-1"></i> Update Slide</button>
+      <button type="submit" id="submitBtn" class="btn btn-success">
+        <i class="fas fa-save me-1"></i> <span class="btn-text">Update Slide</span>
+        <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+      </button>
     </form>
   </div>
 </section>
@@ -78,14 +84,41 @@ require_once __DIR__ . '/inc/header.php';
 <?php require_once __DIR__ . '/inc/footer.php'; ?>
 
 <script>
+function previewEditImage(event) {
+  const reader = new FileReader();
+  reader.onload = function () {
+    const preview = document.getElementById('preview');
+    preview.src = reader.result;
+    preview.style.display = 'block';
+  };
+  reader.readAsDataURL(event.target.files[0]);
+}
+
 $(document).ready(function () {
   $('#edit-form').on('submit', function(e) {
     e.preventDefault();
 
-    var formData = new FormData(this);
+    const form = this;
+    const subtitle = form.subtitle.value.trim();
+    const url = form.url.value.trim();
+
+    if (!subtitle || !url) {
+      Swal.fire({
+        toast: true,
+        icon: 'info',
+        title: 'Optional fields (Subtitle/URL) are empty.',
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 2500
+      });
+    }
+
+    const formData = new FormData(form);
     formData.append('update_slide', 1);
 
-    $(".loader-overlay").show();
+    $('#submitBtn').prop('disabled', true);
+    $('#submitBtn .btn-text').text('Updating...');
+    $('#submitBtn .spinner-border').removeClass('d-none');
 
     $.ajax({
       url: 'inc/action.php',
@@ -95,23 +128,29 @@ $(document).ready(function () {
       processData: false,
       dataType: 'json',
       success: function(response) {
-        $(".loader-overlay").hide();
+        $('#submitBtn').prop('disabled', false);
+        $('#submitBtn .btn-text').text('Update Slide');
+        $('#submitBtn .spinner-border').addClass('d-none');
+
         if (response.status === 'success') {
           Swal.fire({
             icon: 'success',
-            title: 'Success',
+            title: 'Updated',
             text: response.message,
             timer: 2000,
             showConfirmButton: false
           }).then(() => {
-            window.location.href = 'slider.php';
+            window.location.href = 'slider.php?msg=updated';
           });
         } else {
           Swal.fire('Error', response.message, 'error');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
         }
       },
       error: function() {
-        $(".loader-overlay").hide();
+        $('#submitBtn').prop('disabled', false);
+        $('#submitBtn .btn-text').text('Update Slide');
+        $('#submitBtn .spinner-border').addClass('d-none');
         Swal.fire('Error', 'AJAX request failed', 'error');
       }
     });

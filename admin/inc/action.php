@@ -9,7 +9,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-function clean($data) {
+function clean($data)
+{
     return htmlspecialchars(strip_tags(trim($data)));
 }
 

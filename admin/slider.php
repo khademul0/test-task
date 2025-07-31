@@ -40,7 +40,7 @@ require_once __DIR__ . '/../app/db.php';
                                 <?php if (!empty($row['image']) && file_exists(__DIR__ . '/../assets/images/slides/' . $row['image'])): ?>
                                     <img src="../assets/images/slides/<?= $row['image']; ?>" width="60" alt="Slide Image">
                                 <?php else: ?>
-                                    <span class="text-muted">No Image</span>
+                                    <span class="badge bg-secondary">No Image</span>
                                 <?php endif; ?>
                             </td>
                             <td>
@@ -72,9 +72,30 @@ require_once __DIR__ . '/../app/db.php';
 $(document).ready(function() {
     $('#datatables').DataTable();
 
-    // Delete slide with SweetAlert confirmation and AJAX
+    // Show toast based on ?msg=
+    const urlParams = new URLSearchParams(window.location.search);
+    const msg = urlParams.get('msg');
+    if (msg) {
+        let toastText = '';
+        if (msg === 'created') toastText = 'Slide created successfully!';
+        else if (msg === 'updated') toastText = 'Slide updated successfully!';
+        else if (msg === 'deleted') toastText = 'Slide deleted successfully!';
+        
+        if (toastText) {
+            Swal.fire({
+                toast: true,
+                icon: 'success',
+                title: toastText,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000
+            });
+        }
+    }
+
+    // Delete slide with confirmation
     $('.btn-delete').click(function() {
-        var slideId = $(this).data('id');
+        const slideId = $(this).data('id');
 
         Swal.fire({
             title: 'Are you sure?',
@@ -86,7 +107,6 @@ $(document).ready(function() {
             confirmButtonText: 'Yes, delete it!'
         }).then((result) => {
             if (result.isConfirmed) {
-                // AJAX request to delete slide
                 $.ajax({
                     url: 'inc/action.php',
                     method: 'POST',
@@ -97,7 +117,14 @@ $(document).ready(function() {
                             $('#row-' + slideId).fadeOut(500, function() {
                                 $(this).remove();
                             });
-                            Swal.fire('Deleted!', response.message, 'success');
+                            Swal.fire({
+                                toast: true,
+                                icon: 'success',
+                                title: response.message,
+                                position: 'top-end',
+                                showConfirmButton: false,
+                                timer: 3000
+                            });
                         } else {
                             Swal.fire('Error', response.message, 'error');
                         }
