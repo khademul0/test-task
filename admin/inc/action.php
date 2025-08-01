@@ -34,6 +34,7 @@ if (isset($_POST['create_slide'])) {
         if (!is_dir($targetDir)) {
             mkdir($targetDir, 0777, true);
         }
+
         $fileTmpPath = $_FILES['image']['tmp_name'];
         $originalName = basename($_FILES['image']['name']);
         $extension = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
@@ -87,6 +88,7 @@ if (isset($_POST['update_slide']) && isset($_POST['id'])) {
         echo json_encode(['status' => 'error', 'message' => 'Slide not found']);
         exit;
     }
+
     $slide = $res->fetch_assoc();
     $imageName = $slide['image'];
 
@@ -95,6 +97,7 @@ if (isset($_POST['update_slide']) && isset($_POST['id'])) {
         if (!is_dir($targetDir)) {
             mkdir($targetDir, 0777, true);
         }
+
         $fileTmpPath = $_FILES['image']['tmp_name'];
         $originalName = basename($_FILES['image']['name']);
         $extension = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
@@ -133,11 +136,13 @@ if (isset($_POST['update_slide']) && isset($_POST['id'])) {
 // Delete Slide
 if (isset($_POST['delete_slide']) && isset($_POST['id'])) {
     $id = intval($_POST['id']);
+
     $res = $conn->query("SELECT image FROM slides WHERE id = $id");
     if ($res->num_rows === 0) {
         echo json_encode(['status' => 'error', 'message' => 'Slide not found']);
         exit;
     }
+
     $slide = $res->fetch_assoc();
 
     $stmt = $conn->prepare("DELETE FROM slides WHERE id = ?");
@@ -151,6 +156,30 @@ if (isset($_POST['delete_slide']) && isset($_POST['id'])) {
         echo json_encode(['status' => 'success', 'message' => 'Slide deleted successfully']);
     } else {
         echo json_encode(['status' => 'error', 'message' => 'Database error: ' . $stmt->error]);
+    }
+    exit;
+}
+
+// Toggle Slide Status
+if (isset($_POST['toggle_slide_status']) && isset($_POST['id'])) {
+    $id = intval($_POST['id']);
+
+    $res = $conn->query("SELECT status FROM slides WHERE id = $id");
+    if ($res->num_rows === 0) {
+        echo json_encode(['status' => 'error', 'message' => 'Slide not found']);
+        exit;
+    }
+
+    $slide = $res->fetch_assoc();
+    $newStatus = $slide['status'] === 'Active' ? 'Inactive' : 'Active';
+
+    $stmt = $conn->prepare("UPDATE slides SET status = ? WHERE id = ?");
+    $stmt->bind_param("si", $newStatus, $id);
+
+    if ($stmt->execute()) {
+        echo json_encode(['status' => 'success', 'message' => "Status changed to $newStatus", 'new_status' => $newStatus]);
+    } else {
+        echo json_encode(['status' => 'error', 'message' => 'Failed to update status']);
     }
     exit;
 }
