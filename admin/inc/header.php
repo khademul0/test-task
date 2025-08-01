@@ -27,6 +27,8 @@ Auth::check();
     <link rel="stylesheet" href="../assets/fontawesome/css/fontawesome.min.css">
     <link rel="stylesheet" href="../assets/css/admin/style.css">
 
+
+
 </head>
 
 
@@ -63,7 +65,27 @@ Auth::check();
                         </a>
                     </li>
 
-                    <!-- Dropdown -->
+                    <!-- works Dropdown -->
+                    <li class="nav-item dropdown <?= (basename($_SERVER['PHP_SELF']) === 'works.php' || basename($_SERVER['PHP_SELF']) === 'portfolio.php') ? 'active' : '' ?>">
+                        <a class="nav-link dropdown-toggle <?= (basename($_SERVER['PHP_SELF']) === 'works.php' || basename($_SERVER['PHP_SELF']) === 'portfolio.php') ? 'active' : '' ?>" href="#" id="worksDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-briefcase me-1"></i> Works
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="worksDropdown">
+                            <li>
+                                <a class="dropdown-item <?= (basename($_SERVER['PHP_SELF']) === 'works.php' ? 'active' : '') ?>" href="works.php">
+                                    <i class="fas fa-tasks me-1"></i> Manage Works
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item <?= (basename($_SERVER['PHP_SELF']) === 'portfolio.php' ? 'active' : '') ?>" href="../portfolio.php" target="_blank">
+                                    <i class="fas fa-globe me-1"></i> View Portfolio
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+
+
+
                     <!-- User Dropdown with Name -->
                     <li class="nav-item dropdown ">
                         <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
