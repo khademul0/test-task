@@ -25,6 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 $action = $_POST['action'] ?? '';
+$user_id = intval($_SESSION['user_id'] ?? 0);
 
 switch ($action) {
     case 'create_work':
@@ -72,6 +73,7 @@ switch ($action) {
         $stmt->execute();
 
         if ($stmt->affected_rows > 0) {
+            $conn->query("INSERT INTO activity_logs (user_id, action, description, created_at) VALUES ($user_id, 'Create Work', 'Created work: " . addslashes($title) . "', NOW())");
             send_response('success', 'Work created successfully', '/task-project/admin/works.php');
         } else {
             send_response('error', 'Database error: ' . $stmt->error);
@@ -129,6 +131,7 @@ switch ($action) {
         $stmt->execute();
 
         if ($stmt->affected_rows >= 0) {
+            $conn->query("INSERT INTO activity_logs (user_id, action, description, created_at) VALUES ($user_id, 'Update Work', 'Updated work: " . addslashes($title) . "', NOW())");
             send_response('success', 'Work updated successfully', '/task-project/admin/works.php');
         } else {
             send_response('error', 'Database error: ' . $stmt->error);
@@ -142,7 +145,7 @@ switch ($action) {
             send_response('error', 'Invalid ID');
         }
 
-        $sql = "SELECT image FROM works WHERE id = ?";
+        $sql = "SELECT title, image FROM works WHERE id = ?";
         $stmt = $conn->prepare($sql);
         if (!$stmt) {
             send_response('error', 'Prepare failed: ' . $conn->error);
@@ -168,6 +171,7 @@ switch ($action) {
         $stmt->execute();
 
         if ($stmt->affected_rows > 0) {
+            $conn->query("INSERT INTO activity_logs (user_id, action, description, created_at) VALUES ($user_id, 'Delete Work', 'Deleted work: " . addslashes($work['title'] ?? 'ID ' . $id) . "', NOW())");
             send_response('success', 'Work deleted successfully');
         } else {
             send_response('error', 'Work not found or could not be deleted');
@@ -184,6 +188,13 @@ switch ($action) {
 
         $new_status = $current_status === 1 ? 0 : 1;
 
+        $sql = "SELECT title FROM works WHERE id = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        $work = $res->fetch_assoc();
+
         $sql = "UPDATE works SET status = ? WHERE id = ?";
         $stmt = $conn->prepare($sql);
         if (!$stmt) {
@@ -193,6 +204,8 @@ switch ($action) {
         $stmt->execute();
 
         if ($stmt->affected_rows > 0) {
+            $status_text = $new_status ? 'Active' : 'Inactive';
+            $conn->query("INSERT INTO activity_logs (user_id, action, description, created_at) VALUES ($user_id, 'Toggle Work Status', 'Changed status of work: " . addslashes($work['title'] ?? 'ID ' . $id) . " to $status_text', NOW())");
             send_response('success', 'Status updated successfully', '', ['new_status' => $new_status]);
         } else {
             send_response('error', 'Failed to update status');
@@ -202,3 +215,4 @@ switch ($action) {
     default:
         send_response('error', 'Invalid action');
 }
+?>
