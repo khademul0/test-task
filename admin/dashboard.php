@@ -21,90 +21,95 @@ $recent_logs = $conn->query("SELECT al.*, u.name FROM activity_logs al JOIN user
 ?>
 
 <style>
-/* Custom Dashboard Styles */
-body {
-    background-color: #f8f9fa;
-}
+    /* Custom Dashboard Styles */
+    body {
+        background-color: #f8f9fa;
+    }
 
-.card-stats {
-    transition: transform 0.2s;
-    border-radius: 10px;
-    overflow: hidden;
-    cursor: pointer;
-}
+    .card-stats {
+        transition: transform 0.2s;
+        border-radius: 10px;
+        overflow: hidden;
+        cursor: pointer;
+    }
 
-.card-stats:hover {
-    transform: translateY(-5px);
-}
+    .card-stats:hover {
+        transform: translateY(-5px);
+    }
 
-.card-stats .card-body {
-    padding: 1.5rem;
-}
+    .card-stats .card-body {
+        padding: 1.5rem;
+    }
 
-.card-stats .card-icon {
-    font-size: 2rem;
-    color: #fff;
-}
+    .card-stats .card-icon {
+        font-size: 2rem;
+        color: #fff;
+    }
 
-.card-stats .card-title {
-    font-size: 1.1rem;
-    margin-bottom: 0.5rem;
-}
+    .card-stats .card-title {
+        font-size: 1.1rem;
+        margin-bottom: 0.5rem;
+    }
 
-.card-stats .card-value {
-    font-size: 2rem;
-    font-weight: bold;
-}
+    .card-stats .card-value {
+        font-size: 2rem;
+        font-weight: bold;
+    }
 
-.table-responsive {
-    border-radius: 10px;
-    overflow: hidden;
-}
+    .table-responsive {
+        border-radius: 10px;
+        overflow: hidden;
+    }
 
-.table th,
-.table td {
-    vertical-align: middle;
-}
+    .table th,
+    .table td {
+        vertical-align: middle;
+    }
 
-.badge {
-    font-size: 0.9rem;
-    padding: 0.5em 0.75em;
-}
+    .badge {
+        font-size: 0.9rem;
+        padding: 0.5em 0.75em;
+    }
 
-.loader-overlay {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 9999;
-    justify-content: center;
-    align-items: center;
-}
+    .loader-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 9999;
+        justify-content: center;
+        align-items: center;
+    }
 
-.loader {
-    border: 4px solid #f3f3f3;
-    border-top: 4px solid #3498db;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    animation: spin 1s linear infinite;
-}
+    .loader {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #3498db;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+    }
 
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
 
-/* Activity Log Styles */
-.activity-log {
-    background: #fff;
-    border-radius: 10px;
-    padding: 1.5rem;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+    /* Activity Log Styles */
+    .activity-log {
+        background: #fff;
+        border-radius: 10px;
+        padding: 1.5rem;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
 </style>
 
 <section class="py-5">
@@ -326,182 +331,182 @@ body {
 <?php require_once __DIR__ . '/inc/footer.php'; ?>
 
 <script>
-// Initialize DataTables
-$(document).ready(function() {
-    $('#worksTable').DataTable({
-        "pageLength": 5,
-        "lengthChange": false,
-        "searching": false,
-        "ordering": false
-    });
-
-    $('#slidesTable').DataTable({
-        "pageLength": 5,
-        "lengthChange": false,
-        "searching": false,
-        "ordering": false
-    });
-
-    // Toggle work status
-    $('.toggle-status').click(function() {
-        let button = $(this);
-        let id = button.data('id');
-        let currentStatus = button.data('status') === 1 ? 1 : 0;
-
-        $.ajax({
-            url: 'inc/action_works.php',
-            method: 'POST',
-            data: {
-                action: 'toggle_status',
-                id: id,
-                status: currentStatus
-            },
-            dataType: 'json',
-            success: function(response) {
-                if (response.status === 'success') {
-                    let newStatus = response.new_status;
-                    button.data('status', newStatus);
-                    button.toggleClass('btn-success btn-secondary');
-                    button.html(newStatus === 1 ? '<i class="fas fa-toggle-on"></i>' : '<i class="fas fa-toggle-off"></i>');
-                    
-                    Swal.fire({
-                        toast: true,
-                        icon: 'success',
-                        title: response.message,
-                        position: 'top-end',
-                        showConfirmButton: false,
-                        timer: 2000
-                    });
-                } else {
-                    Swal.fire('Error', response.message, 'error');
-                }
-            },
-            error: function() {
-                Swal.fire('Error', 'AJAX request failed', 'error');
-            }
+    // Initialize DataTables
+    $(document).ready(function() {
+        $('#worksTable').DataTable({
+            "pageLength": 5,
+            "lengthChange": false,
+            "searching": false,
+            "ordering": false
         });
-    });
 
-    // Delete work
-    $('.delete-work').click(function() {
-        let id = $(this).data('id');
-        Swal.fire({
-            title: 'Are you sure?',
-            text: "This work will be permanently deleted!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Yes, delete it!'
-        }).then(result => {
-            if (result.isConfirmed) {
-                $.ajax({
-                    url: 'inc/action_works.php',
-                    method: 'POST',
-                    data: {
-                        action: 'delete_work',
-                        id: id
-                    },
-                    dataType: 'json',
-                    success: function(response) {
-                        if (response.status === 'success') {
-                            Swal.fire('Deleted!', response.message, 'success').then(() => location.reload());
-                        } else {
-                            Swal.fire('Error', response.message, 'error');
-                        }
-                    },
-                    error: function() {
-                        Swal.fire('Error', 'AJAX request failed', 'error');
-                    }
-                });
-            }
+        $('#slidesTable').DataTable({
+            "pageLength": 5,
+            "lengthChange": false,
+            "searching": false,
+            "ordering": false
         });
-    });
 
-    // Delete slide
-    $('.btn-delete').click(function() {
-        const slideId = $(this).data('id');
-        Swal.fire({
-            title: 'Are you sure?',
-            text: "This will delete the slide permanently!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#6c757d',
-            confirmButtonText: 'Yes, delete it!'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                $.ajax({
-                    url: 'inc/action.php',
-                    method: 'POST',
-                    data: {
-                        delete_slide: 1,
-                        id: slideId
-                    },
-                    dataType: 'json',
-                    success: function(response) {
-                        if (response.status === 'success') {
-                            $('#row-' + slideId).fadeOut(500, function() {
-                                $(this).remove();
-                            });
-                            Swal.fire({
-                                toast: true,
-                                icon: 'success',
-                                title: response.message,
-                                position: 'top-end',
-                                showConfirmButton: false,
-                                timer: 3000
-                            });
-                        } else {
-                            Swal.fire('Error', response.message, 'error');
-                        }
-                    },
-                    error: function() {
-                        Swal.fire('Error', 'AJAX request failed', 'error');
-                    }
-                });
-            }
-        });
-    });
+        // Toggle work status
+        $('.toggle-status').click(function() {
+            let button = $(this);
+            let id = button.data('id');
+            let currentStatus = button.data('status') === 1 ? 1 : 0;
 
-    // Toggle slide status
-    $('.btn-status-toggle').click(function() {
-        const slideId = $(this).data('id');
-        $.ajax({
-            url: 'inc/action.php',
-            method: 'POST',
-            data: {
-                toggle_slide_status: 1,
-                id: slideId
-            },
-            dataType: 'json',
-            success: function(response) {
-                if (response.status === 'success') {
-                    const icon = $('#row-' + slideId + ' .btn-status-toggle i');
-                    const statusLabel = $('#status-label-' + slideId);
+            $.ajax({
+                url: 'inc/action_works.php',
+                method: 'POST',
+                data: {
+                    action: 'toggle_status',
+                    id: id,
+                    status: currentStatus
+                },
+                dataType: 'json',
+                success: function(response) {
+                    if (response.status === 'success') {
+                        let newStatus = response.new_status;
+                        button.data('status', newStatus);
+                        button.toggleClass('btn-success btn-secondary');
+                        button.html(newStatus === 1 ? '<i class="fas fa-toggle-on"></i>' : '<i class="fas fa-toggle-off"></i>');
 
-                    if (response.new_status === 'Active') {
-                        icon.removeClass('fa-toggle-off').addClass('fa-toggle-on');
-                        statusLabel.removeClass('bg-secondary').addClass('bg-success').text('Active');
+                        Swal.fire({
+                            toast: true,
+                            icon: 'success',
+                            title: response.message,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 2000
+                        });
                     } else {
-                        icon.removeClass('fa-toggle-on').addClass('fa-toggle-off');
-                        statusLabel.removeClass('bg-success').addClass('bg-secondary').text('Inactive');
+                        Swal.fire('Error', response.message, 'error');
                     }
-
-                    Swal.fire({
-                        toast: true,
-                        icon: 'success',
-                        title: response.message,
-                        position: 'top-end',
-                        showConfirmButton: false,
-                        timer: 3000
-                    });
-                } else {
-                    Swal.fire('Error', response.message, 'error');
+                },
+                error: function() {
+                    Swal.fire('Error', 'AJAX request failed', 'error');
                 }
-            },
-            error: function() {
-                Swal.fire('Error', 'AJAX request failed', 'error');
-            }
+            });
+        });
+
+        // Delete work
+        $('.delete-work').click(function() {
+            let id = $(this).data('id');
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "This work will be permanently deleted!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, delete it!'
+            }).then(result => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: 'inc/action_works.php',
+                        method: 'POST',
+                        data: {
+                            action: 'delete_work',
+                            id: id
+                        },
+                        dataType: 'json',
+                        success: function(response) {
+                            if (response.status === 'success') {
+                                Swal.fire('Deleted!', response.message, 'success').then(() => location.reload());
+                            } else {
+                                Swal.fire('Error', response.message, 'error');
+                            }
+                        },
+                        error: function() {
+                            Swal.fire('Error', 'AJAX request failed', 'error');
+                        }
+                    });
+                }
+            });
+        });
+
+        // Delete slide
+        $('.btn-delete').click(function() {
+            const slideId = $(this).data('id');
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "This will delete the slide permanently!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: 'inc/action.php',
+                        method: 'POST',
+                        data: {
+                            delete_slide: 1,
+                            id: slideId
+                        },
+                        dataType: 'json',
+                        success: function(response) {
+                            if (response.status === 'success') {
+                                $('#row-' + slideId).fadeOut(500, function() {
+                                    $(this).remove();
+                                });
+                                Swal.fire({
+                                    toast: true,
+                                    icon: 'success',
+                                    title: response.message,
+                                    position: 'top-end',
+                                    showConfirmButton: false,
+                                    timer: 3000
+                                });
+                            } else {
+                                Swal.fire('Error', response.message, 'error');
+                            }
+                        },
+                        error: function() {
+                            Swal.fire('Error', 'AJAX request failed', 'error');
+                        }
+                    });
+                }
+            });
+        });
+
+        // Toggle slide status
+        $('.btn-status-toggle').click(function() {
+            const slideId = $(this).data('id');
+            $.ajax({
+                url: 'inc/action.php',
+                method: 'POST',
+                data: {
+                    toggle_slide_status: 1,
+                    id: slideId
+                },
+                dataType: 'json',
+                success: function(response) {
+                    if (response.status === 'success') {
+                        const icon = $('#row-' + slideId + ' .btn-status-toggle i');
+                        const statusLabel = $('#status-label-' + slideId);
+
+                        if (response.new_status === 'Active') {
+                            icon.removeClass('fa-toggle-off').addClass('fa-toggle-on');
+                            statusLabel.removeClass('bg-secondary').addClass('bg-success').text('Active');
+                        } else {
+                            icon.removeClass('fa-toggle-on').addClass('fa-toggle-off');
+                            statusLabel.removeClass('bg-success').addClass('bg-secondary').text('Inactive');
+                        }
+
+                        Swal.fire({
+                            toast: true,
+                            icon: 'success',
+                            title: response.message,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 3000
+                        });
+                    } else {
+                        Swal.fire('Error', response.message, 'error');
+                    }
+                },
+                error: function() {
+                    Swal.fire('Error', 'AJAX request failed', 'error');
+                }
+            });
         });
     });
-});
 </script>
