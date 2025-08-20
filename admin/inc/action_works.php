@@ -116,7 +116,7 @@ switch ($action) {
 
             // Delete old image if exists
             if (!empty($old_image) && file_exists($target_dir . $old_image)) {
-                unlink($target_dir . $old_image);
+                @unlink($target_dir . $old_image);
             }
         }
 
@@ -172,7 +172,7 @@ switch ($action) {
         if ($work && !empty($work['image'])) {
             $image_path = "../../assets/img/works/" . $work['image'];
             if (file_exists($image_path)) {
-                unlink($image_path);  // Delete the image file from the server
+                @unlink($image_path);
             }
         }
 
@@ -181,7 +181,6 @@ switch ($action) {
         $deleteWorkStmt = $conn->prepare($deleteWorkSql);
         $deleteWorkStmt->bind_param("i", $id);
         if ($deleteWorkStmt->execute()) {
-            // Log the action
             $conn->query("INSERT INTO activity_logs (user_id, action, description, created_at) 
                       VALUES ($user_id, 'Delete Work', 'Deleted work: " . addslashes($work['title'] ?? 'ID ' . $id) . "', NOW())");
             send_response('success', 'Work deleted successfully');
@@ -190,40 +189,48 @@ switch ($action) {
         }
         break;
 
-
-
     case 'toggle_status':
+        // ✅ FIXED: no need to pass "status" from client
         $id = intval($_POST['id'] ?? 0);
-        $current_status = intval($_POST['status'] ?? -1);
-
-        if ($id <= 0 || ($current_status !== 0 && $current_status !== 1)) {
+        if ($id <= 0) {
             send_response('error', 'Invalid parameters');
         }
 
-        $new_status = $current_status === 1 ? 0 : 1;
-
-        $sql = "SELECT title FROM works WHERE id = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("i", $id);
-        $stmt->execute();
-        $res = $stmt->get_result();
-        $work = $res->fetch_assoc();
-
-        $sql = "UPDATE works SET status = ? WHERE id = ?";
-        $stmt = $conn->prepare($sql);
+        // Get current status
+        $stmt = $conn->prepare("SELECT title, status FROM works WHERE id = ?");
         if (!$stmt) {
             send_response('error', 'Prepare failed: ' . $conn->error);
         }
-        $stmt->bind_param("ii", $new_status, $id);
-        $stmt->execute();
+        $stmt->bind_param("i", $id);
+        if (!$stmt->execute()) {
+            send_response('error', 'Query failed');
+        }
+        $res = $stmt->get_result();
+        if ($res->num_rows === 0) {
+            send_response('error', 'Work not found');
+        }
+        $row = $res->fetch_assoc();
+        $current_status = (int) ($row['status'] ?? 0);
 
-        if ($stmt->affected_rows > 0) {
-            $status_text = $new_status ? 'Active' : 'Inactive';
-            $conn->query("INSERT INTO activity_logs (user_id, action, description, created_at) VALUES ($user_id, 'Toggle Work Status', 'Changed status of work: " . addslashes($work['title'] ?? 'ID ' . $id) . " to $status_text', NOW())");
-            send_response('success', 'Status updated successfully', '', ['new_status' => $new_status]);
-        } else {
+        // Flip
+        $new_status = $current_status === 1 ? 0 : 1;
+
+        // Update
+        $up = $conn->prepare("UPDATE works SET status = ? WHERE id = ?");
+        if (!$up) {
+            send_response('error', 'Prepare failed: ' . $conn->error);
+        }
+        $up->bind_param("ii", $new_status, $id);
+        if (!$up->execute()) {
             send_response('error', 'Failed to update status');
         }
+
+        // Log
+        $status_text = $new_status ? 'Active' : 'Inactive';
+        $conn->query("INSERT INTO activity_logs (user_id, action, description, created_at) 
+                      VALUES ($user_id, 'Toggle Work Status', 'Changed status of work: " . addslashes($row['title'] ?? ('ID ' . $id)) . " to $status_text', NOW())");
+
+        send_response('success', 'Status updated successfully', '', ['new_status' => $new_status]);
         break;
 
     default:
