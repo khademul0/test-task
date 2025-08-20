@@ -650,10 +650,10 @@ $recent_logs = $conn->query("SELECT al.*, u.name FROM activity_logs al JOIN user
             </a>
         </div>
         <div class="nav-item">
-            <a href="#" class="nav-link">
+            <div class="nav-link" onclick="logout()">
                 <i class="fas fa-sign-out-alt"></i>
                 <span>Logout</span>
-            </a>
+            </div>
         </div>
     </nav>
 </div>
