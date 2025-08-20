@@ -145,38 +145,52 @@ switch ($action) {
             send_response('error', 'Invalid ID');
         }
 
+        // Step 1: Delete related records from 'cart', 'order_items', and 'wishlist' first.
+        $tables = [
+            'cart' => 'work_id',
+            'order_items' => 'work_id',
+            'wishlist' => 'work_id'
+        ];
+
+        foreach ($tables as $table => $column) {
+            $deleteSql = "DELETE FROM $table WHERE $column = ?";
+            $stmt = $conn->prepare($deleteSql);
+            $stmt->bind_param("i", $id);
+            if (!$stmt->execute()) {
+                send_response('error', 'Error deleting from ' . $table);
+            }
+        }
+
+        // Step 2: Delete the associated image if exists
         $sql = "SELECT title, image FROM works WHERE id = ?";
         $stmt = $conn->prepare($sql);
-        if (!$stmt) {
-            send_response('error', 'Prepare failed: ' . $conn->error);
-        }
         $stmt->bind_param("i", $id);
         $stmt->execute();
-        $res = $stmt->get_result();
-        $work = $res->fetch_assoc();
+        $result = $stmt->get_result();
+        $work = $result->fetch_assoc();
 
         if ($work && !empty($work['image'])) {
             $image_path = "../../assets/img/works/" . $work['image'];
             if (file_exists($image_path)) {
-                unlink($image_path);
+                unlink($image_path);  // Delete the image file from the server
             }
         }
 
-        $sql = "DELETE FROM works WHERE id = ?";
-        $stmt = $conn->prepare($sql);
-        if (!$stmt) {
-            send_response('error', 'Prepare failed: ' . $conn->error);
-        }
-        $stmt->bind_param("i", $id);
-        $stmt->execute();
-
-        if ($stmt->affected_rows > 0) {
-            $conn->query("INSERT INTO activity_logs (user_id, action, description, created_at) VALUES ($user_id, 'Delete Work', 'Deleted work: " . addslashes($work['title'] ?? 'ID ' . $id) . "', NOW())");
+        // Step 3: Now delete the work from the 'works' table
+        $deleteWorkSql = "DELETE FROM works WHERE id = ?";
+        $deleteWorkStmt = $conn->prepare($deleteWorkSql);
+        $deleteWorkStmt->bind_param("i", $id);
+        if ($deleteWorkStmt->execute()) {
+            // Log the action
+            $conn->query("INSERT INTO activity_logs (user_id, action, description, created_at) 
+                      VALUES ($user_id, 'Delete Work', 'Deleted work: " . addslashes($work['title'] ?? 'ID ' . $id) . "', NOW())");
             send_response('success', 'Work deleted successfully');
         } else {
-            send_response('error', 'Work not found or could not be deleted');
+            send_response('error', 'Failed to delete work');
         }
         break;
+
+
 
     case 'toggle_status':
         $id = intval($_POST['id'] ?? 0);
@@ -215,4 +229,3 @@ switch ($action) {
     default:
         send_response('error', 'Invalid action');
 }
-?>
