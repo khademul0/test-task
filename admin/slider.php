@@ -4,37 +4,56 @@ require_once __DIR__ . '/../app/db.php';
 ?>
 
 <style>
-    /* Modern Dashboard Styles - Matching dashboard.php */
     :root {
-        --primary-color: #4f46e5;
-        --secondary-color: #f8fafc;
-        --accent-color: #06b6d4;
+        /* Professional glassy color palette matching dashboard */
+        --primary-color: #164e63;
+        --primary-dark: #0f3a47;
+        --secondary-color: #ec4899;
+        --accent-color: #f59e0b;
         --success-color: #10b981;
+        --danger-color: #dc2626;
         --warning-color: #f59e0b;
-        --danger-color: #ef4444;
-        --dark-color: #1e293b;
-        --light-color: #ffffff;
+        --light-bg: rgba(255, 255, 255, 0.8);
+        --dark-bg: rgba(15, 23, 42, 0.9);
+        --card-bg: rgba(255, 255, 255, 0.2);
+        --glass-bg: rgba(255, 255, 255, 0.15);
+        --glass-border: rgba(255, 255, 255, 0.25);
+        --text-primary: #164e63;
+        --text-secondary: #475569;
+        --border-color: rgba(0, 0, 0, 0.1);
+        --shadow: 0 25px 50px rgba(22, 78, 99, 0.15);
+        --shadow-lg: 0 35px 70px rgba(22, 78, 99, 0.2);
+        --glow: 0 0 30px rgba(22, 78, 99, 0.3);
+        --glass-gradient: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%);
         --sidebar-width: 280px;
         --sidebar-collapsed-width: 80px;
+        --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
+    /* Updated body background and font to match dashboard exactly */
     body {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #ecfeff 0%, #cffafe 25%, #a5f3fc 50%, #67e8f9 75%, #22d3ee 100%);
         min-height: 100vh;
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+        margin: 0;
+        padding: 0;
+        position: relative;
+        overflow-x: hidden;
     }
 
-    /* Sidebar Styles */
+    /* Enhanced sidebar with darker glassy design */
     .sidebar {
         position: fixed;
         top: 0;
         left: 0;
         height: 100vh;
         width: var(--sidebar-width);
-        background: linear-gradient(180deg, var(--dark-color) 0%, #334155 100%);
-        transition: all 0.3s ease;
+        backdrop-filter: blur(30px);
+        background: rgba(15, 23, 42, 0.95);
+        border-right: 2px solid rgba(255, 255, 255, 0.15);
+        transition: var(--transition);
         z-index: 1000;
-        box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+        box-shadow: 4px 0 30px rgba(0, 0, 0, 0.2);
     }
 
     .sidebar.collapsed {
@@ -47,19 +66,21 @@ require_once __DIR__ . '/../app/db.php';
         display: flex;
         align-items: center;
         gap: 1rem;
+        background: rgba(255, 255, 255, 0.05);
     }
 
     .sidebar-logo {
         width: 40px;
         height: 40px;
-        background: var(--primary-color);
-        border-radius: 10px;
+        background: linear-gradient(135deg, var(--secondary-color), var(--accent-color));
+        border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
         color: white;
         font-size: 1.2rem;
         font-weight: bold;
+        box-shadow: 0 4px 15px rgba(236, 72, 153, 0.3);
     }
 
     .sidebar-title {
@@ -68,6 +89,7 @@ require_once __DIR__ . '/../app/db.php';
         font-weight: 600;
         margin: 0;
         transition: opacity 0.3s ease;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
     }
 
     .sidebar.collapsed .sidebar-title {
@@ -82,6 +104,7 @@ require_once __DIR__ . '/../app/db.php';
         margin: 0.25rem 1rem;
     }
 
+    /* Enhanced nav links to match dashboard styling exactly */
     .nav-link {
         display: flex;
         align-items: center;
@@ -89,16 +112,19 @@ require_once __DIR__ . '/../app/db.php';
         padding: 0.75rem 1rem;
         color: rgba(255, 255, 255, 0.8);
         text-decoration: none;
-        border-radius: 10px;
-        transition: all 0.3s ease;
+        border-radius: 12px;
+        transition: var(--transition);
         position: relative;
+        backdrop-filter: blur(10px);
+        cursor: pointer;
     }
 
     .nav-link:hover,
     .nav-link.active {
-        background: rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.15);
         color: white;
         transform: translateX(5px);
+        box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
     }
 
     .nav-link i {
@@ -111,7 +137,6 @@ require_once __DIR__ . '/../app/db.php';
         opacity: 0;
     }
 
-    /* Main Content */
     .main-content {
         margin-left: var(--sidebar-width);
         transition: margin-left 0.3s ease;
@@ -122,38 +147,46 @@ require_once __DIR__ . '/../app/db.php';
         margin-left: var(--sidebar-collapsed-width);
     }
 
+    /* Enhanced top bar with dark blue glassy design */
     .top-bar {
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(10px);
+        backdrop-filter: blur(30px);
+        background: rgba(30, 58, 138, 0.9);
+        border: 1px solid rgba(255, 255, 255, 0.2);
         padding: 1rem 2rem;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 8px 32px rgba(30, 58, 138, 0.3);
         position: sticky;
         top: 0;
         z-index: 100;
+        border-radius: 0 0 20px 20px;
+        margin: 0 1rem;
     }
 
     .sidebar-toggle {
-        background: none;
-        border: none;
+        background: rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.3);
         font-size: 1.2rem;
-        color: var(--dark-color);
+        color: white;
         cursor: pointer;
         padding: 0.5rem;
-        border-radius: 8px;
-        transition: background 0.3s ease;
+        border-radius: 10px;
+        transition: var(--transition);
+        backdrop-filter: blur(10px);
     }
 
     .sidebar-toggle:hover {
-        background: rgba(0, 0, 0, 0.1);
+        background: rgba(255, 255, 255, 0.3);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
     }
 
     .user-info {
         display: flex;
         align-items: center;
         gap: 1rem;
+        color: white;
         position: relative;
     }
 
@@ -161,7 +194,7 @@ require_once __DIR__ . '/../app/db.php';
         width: 50px;
         height: 50px;
         border-radius: 50%;
-        background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
         display: flex;
         align-items: center;
         justify-content: center;
@@ -171,9 +204,14 @@ require_once __DIR__ . '/../app/db.php';
         cursor: pointer;
         position: relative;
         overflow: hidden;
-        transition: all 0.3s ease;
-        border: 3px solid white;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        transition: var(--transition);
+        border: 3px solid rgba(255, 255, 255, 0.5);
+        box-shadow: 0 8px 25px rgba(22, 78, 99, 0.2);
+    }
+
+    .user-avatar:hover {
+        transform: scale(1.05);
+        box-shadow: 0 12px 35px rgba(22, 78, 99, 0.3);
     }
 
     .user-avatar img {
@@ -181,11 +219,6 @@ require_once __DIR__ . '/../app/db.php';
         height: 100%;
         object-fit: cover;
         border-radius: 50%;
-    }
-
-    .user-avatar:hover {
-        transform: scale(1.05);
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
     }
 
     .profile-upload-overlay {
@@ -208,21 +241,24 @@ require_once __DIR__ . '/../app/db.php';
         opacity: 1;
     }
 
+    /* Enhanced profile dropdown to match dashboard styling exactly */
     .profile-dropdown {
         position: absolute;
         top: 100%;
         right: 0;
-        background: white;
-        border-radius: 12px;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+        backdrop-filter: blur(25px);
+        background: rgba(255, 255, 255, 0.25);
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        border-radius: 16px;
+        box-shadow: var(--shadow-lg);
         padding: 0.5rem 0;
         min-width: 200px;
+        z-index: 1000;
         opacity: 0;
         visibility: hidden;
         transform: translateY(-10px);
-        transition: all 0.3s ease;
-        z-index: 1000;
-        border: 1px solid #e2e8f0;
+        transition: var(--transition);
+        margin-top: 10px;
     }
 
     .profile-dropdown.show {
@@ -237,268 +273,223 @@ require_once __DIR__ . '/../app/db.php';
         gap: 0.75rem;
         padding: 0.75rem 1rem;
         cursor: pointer;
-        transition: background 0.2s ease;
-        color: var(--dark-color);
+        transition: var(--transition);
+        color: var(--text-primary);
         font-size: 0.9rem;
+        font-weight: 500;
     }
 
     .profile-dropdown-item:hover {
-        background: #f8fafc;
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateX(5px);
     }
 
     .profile-dropdown-item i {
         width: 16px;
-        color: #64748b;
+        color: var(--text-secondary);
     }
 
+    /* Hidden file input */
     #profilePhotoInput {
         display: none;
     }
 
-    /* Enhanced notification styles */
-    .notification {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 1rem 1.5rem;
-        border-radius: 10px;
-        color: white;
-        font-weight: 500;
-        z-index: 9999;
-        opacity: 0;
-        transform: translateX(100%);
-        transition: all 0.3s ease;
-    }
-
-    .notification.show {
-        opacity: 1;
-        transform: translateX(0);
-    }
-
-    .notification.success {
-        background: linear-gradient(135deg, var(--success-color), #34d399);
-    }
-
-    .notification.error {
-        background: linear-gradient(135deg, var(--danger-color), #f87171);
-    }
-
-    .notification.info {
-        background: linear-gradient(135deg, var(--accent-color), #0ea5e9);
-    }
-
-    /* Dashboard Content */
-    .dashboard-content {
+    /* Content styling to match dashboard cards exactly */
+    .content-section {
         padding: 2rem;
-    }
-
-    .welcome-section {
-        background: linear-gradient(135deg, var(--light-color) 0%, #f1f5f9 100%);
+        margin: 1rem;
+        backdrop-filter: blur(25px);
+        background: rgba(255, 255, 255, 0.25);
+        border: 1px solid rgba(255, 255, 255, 0.25);
         border-radius: 20px;
-        padding: 2rem;
-        margin-bottom: 2rem;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        box-shadow: var(--shadow);
+        position: relative;
+        overflow: hidden;
     }
 
-    .welcome-title {
-        color: var(--dark-color);
-        font-size: 2rem;
-        font-weight: 700;
-        margin-bottom: 0.5rem;
-        display: flex;
-        align-items: center;
-        gap: 1rem;
+    .content-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
     }
 
-    .welcome-subtitle {
-        color: #64748b;
-        font-size: 1.1rem;
-        margin: 0;
-    }
-
-    /* Content Cards */
-    .content-card {
-        background: var(--light-color);
-        border-radius: 20px;
-        padding: 2rem;
-        margin-bottom: 2rem;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-        transition: all 0.3s ease;
-    }
-
-    .content-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-    }
-
-    .card-header {
+    .page-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 1.5rem;
-        padding-bottom: 1rem;
-        border-bottom: 2px solid #f1f5f9;
+        margin-bottom: 2rem;
     }
 
-    .card-title {
-        color: var(--dark-color);
-        font-size: 1.5rem;
+    .page-title {
+        color: var(--text-primary);
+        font-size: 1.75rem;
         font-weight: 600;
         margin: 0;
         display: flex;
         align-items: center;
-        gap: 0.75rem;
+        gap: 0.5rem;
+        font-family: 'Work Sans', sans-serif;
     }
 
-    .card-title i {
-        color: var(--primary-color);
+    /* Enhanced buttons to match dashboard styling exactly */
+    .btn-primary {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        border: none;
+        border-radius: 10px;
+        padding: 0.5rem 1rem;
+        color: white;
+        text-decoration: none;
+        transition: var(--transition);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 500;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 4px 15px rgba(22, 78, 99, 0.3);
     }
 
-    /* Modern Table Styles */
-    .table-container {
-        background: white;
-        border-radius: 15px;
-        overflow: hidden;
-        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
-    }
-
-    .modern-table {
-        width: 100%;
-        border-collapse: collapse;
-        margin: 0;
-    }
-
-    .modern-table thead {
-        background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(22, 78, 99, 0.4);
         color: white;
     }
 
-    .modern-table thead th {
-        padding: 1.25rem 1rem;
+    /* Table container to match dashboard styling exactly */
+    .table-container {
+        backdrop-filter: blur(25px);
+        background: rgba(255, 255, 255, 0.25);
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        border-radius: 20px;
+        padding: 0;
+        box-shadow: var(--shadow);
+        overflow: hidden;
+        position: relative;
+    }
+
+    .table-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+    }
+
+    .table {
+        margin-bottom: 0;
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .table th {
+        background: rgba(255, 255, 255, 0.1);
+        border: none;
+        color: var(--text-primary);
         font-weight: 600;
+        padding: 1rem;
         text-align: left;
-        border: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
         font-size: 0.9rem;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
     }
 
-    .modern-table tbody tr {
-        transition: all 0.3s ease;
-        border-bottom: 1px solid #f1f5f9;
-    }
-
-    .modern-table tbody tr:hover {
-        background: #f8fafc;
-        transform: scale(1.01);
-    }
-
-    .modern-table tbody td {
-        padding: 1.25rem 1rem;
+    .table td {
         border: none;
+        padding: 1rem;
         vertical-align: middle;
+        color: var(--text-secondary);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
 
-    .modern-table tbody tr:last-child {
-        border-bottom: none;
+    .table tbody tr {
+        transition: all 0.3s ease;
     }
 
-    /* Modern Buttons */
+    .table tbody tr:hover {
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    /* Enhanced button styling to match dashboard exactly */
     .btn {
+        padding: 0.5rem 1rem;
+        border: none;
         border-radius: 10px;
         font-weight: 500;
-        padding: 0.75rem 1.5rem;
-        transition: all 0.3s ease;
-        border: none;
         text-decoration: none;
         display: inline-flex;
         align-items: center;
         gap: 0.5rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         cursor: pointer;
+        backdrop-filter: blur(10px);
+        font-size: 0.875rem;
     }
 
-    .btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        text-decoration: none;
-    }
-
-    .btn-primary {
-        background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
-        color: white;
-    }
-
-    .btn-success {
-        background: linear-gradient(135deg, var(--success-color), #34d399);
-        color: white;
+    .btn-sm {
+        padding: 0.375rem 0.75rem;
+        font-size: 0.8rem;
     }
 
     .btn-warning {
-        background: linear-gradient(135deg, var(--warning-color), #fbbf24);
+        background: linear-gradient(135deg, var(--warning-color), #f97316);
+        border: none;
         color: white;
+        box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+    }
+
+    .btn-warning:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4);
     }
 
     .btn-danger {
         background: linear-gradient(135deg, var(--danger-color), #f87171);
+        border: none;
         color: white;
+        box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3);
+    }
+
+    .btn-danger:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(220, 38, 38, 0.4);
     }
 
     .btn-info {
-        background: linear-gradient(135deg, var(--accent-color), #0ea5e9);
+        background: linear-gradient(135deg, var(--accent-color), #fbbf24);
+        border: none;
         color: white;
+        box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
     }
 
-    .btn-sm {
-        padding: 0.5rem 1rem;
-        font-size: 0.875rem;
+    .btn-info:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4);
     }
 
-    /* Modern Badges */
     .badge {
-        border-radius: 8px;
-        font-weight: 500;
-        padding: 0.5rem 0.75rem;
+        padding: 0.375rem 0.75rem;
+        border-radius: 20px;
         font-size: 0.75rem;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
+        font-weight: 500;
+        backdrop-filter: blur(10px);
     }
 
     .bg-success {
-        background: linear-gradient(135deg, var(--success-color), #34d399) !important;
+        background: linear-gradient(135deg, var(--success-color), #34d399);
         color: white;
     }
 
     .bg-secondary {
-        background: linear-gradient(135deg, #6b7280, #9ca3af) !important;
-        color: white;
+        background: rgba(255, 255, 255, 0.2);
+        color: var(--text-secondary);
+        border: 1px solid rgba(255, 255, 255, 0.3);
     }
 
-    /* Image Styling */
-    .slide-image {
-        border-radius: 8px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        transition: transform 0.3s ease;
-    }
-
-    .slide-image:hover {
-        transform: scale(1.1);
-    }
-
-    /* Time Display */
-    .time-display {
-        font-size: 0.85rem;
-        line-height: 1.4;
-        color: #64748b;
-    }
-
-    /* Action Buttons Container */
-    .action-buttons {
-        display: flex;
-        gap: 0.5rem;
-        align-items: center;
-    }
-
-    /* Responsive */
+    /* Added responsive design to match dashboard */
     @media (max-width: 768px) {
         .sidebar {
             transform: translateX(-100%);
@@ -512,42 +503,19 @@ require_once __DIR__ . '/../app/db.php';
             margin-left: 0;
         }
 
-        .dashboard-content {
+        .top-bar {
+            margin: 0;
+            border-radius: 0;
+        }
+
+        .content-section {
             padding: 1rem;
+            margin: 0.5rem;
         }
 
-        .card-header {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 1rem;
+        .page-title {
+            font-size: 1.5rem;
         }
-
-        .action-buttons {
-            flex-direction: column;
-            width: 100%;
-        }
-
-        .btn-sm {
-            width: 100%;
-            justify-content: center;
-        }
-    }
-
-    /* Animations */
-    @keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(30px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    .fade-in-up {
-        animation: fadeInUp 0.6s ease forwards;
     }
 </style>
 
@@ -592,10 +560,10 @@ require_once __DIR__ . '/../app/db.php';
             </a>
         </div>
         <div class="nav-item">
-            <a href="#" class="nav-link">
+            <div class="nav-link" onclick="logout()">
                 <i class="fas fa-sign-out-alt"></i>
                 <span>Logout</span>
-            </a>
+            </div>
         </div>
     </nav>
 </div>
@@ -609,7 +577,7 @@ require_once __DIR__ . '/../app/db.php';
         </button>
 
         <div class="user-info">
-            <!-- Enhanced user avatar with profile photo functionality from dashboard.php -->
+            <!-- Enhanced user avatar with profile photo functionality -->
             <div class="user-avatar" id="userAvatar" onclick="toggleProfileDropdown()">
                 <?php
                 // Get user profile photo from database
@@ -659,115 +627,89 @@ require_once __DIR__ . '/../app/db.php';
             <input type="file" id="profilePhotoInput" accept="image/*" onchange="uploadProfilePhoto(this)">
 
             <div>
-                <div style="font-weight: 600; color: var(--dark-color);">
+                <div style="font-weight: 600;">
                     <?= htmlspecialchars($_SESSION['user_name'] ?? 'Admin') ?>
                 </div>
-                <div style="font-size: 0.875rem; color: #64748b;">
-                    Administrator
-                </div>
+                <div style="font-size: 0.85rem; color: #64748b;">Administrator</div>
             </div>
         </div>
     </div>
 
-    <!-- Dashboard Content -->
-    <div class="dashboard-content">
-        <!-- Welcome Section -->
-        <div class="welcome-section fade-in-up">
-            <h1 class="welcome-title">
-                <i class="fas fa-sliders-h"></i>
-                Manage Slides
-            </h1>
-            <p class="welcome-subtitle">Create, edit, and manage your website slides with ease</p>
+    <!-- Content Section -->
+    <div class="content-section">
+        <div class="page-header">
+            <h4 class="page-title">
+                <i class="fas fa-sliders-h"></i> Manage Slides
+            </h4>
+            <a href="create.php" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Add Slide
+            </a>
         </div>
 
-        <!-- Content Card -->
-        <div class="content-card fade-in-up" style="animation-delay: 0.2s;">
-            <div class="card-header">
-                <h4 class="card-title">
-                    <i class="fas fa-images"></i>
-                    All Slides
-                </h4>
-                <a href="create.php" class="btn btn-primary">
-                    <i class="fas fa-plus"></i>
-                    Add Slide
-                </a>
-            </div>
+        <div class="table-container">
+            <table class="table table-bordered" id="datatables">
+                <thead>
+                    <tr>
+                        <th>SL No</th>
+                        <th>Title</th>
+                        <th>Image</th>
+                        <th>Time Limit</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php
+                    $sql = "SELECT * FROM slides ORDER BY id DESC";
+                    $result = $conn->query($sql);
+                    $sl = 1;
 
-            <div class="table-container">
-                <table class="modern-table" id="datatables">
-                    <thead>
-                        <tr>
-                            <th>SL No</th>
-                            <th>Title</th>
-                            <th>Image</th>
-                            <th>Time Limit</th>
-                            <th>Status</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php
-                        $sql = "SELECT * FROM slides ORDER BY id DESC";
-                        $result = $conn->query($sql);
-                        $sl = 1;
+                    if ($result && $result->num_rows > 0):
+                        while ($row = $result->fetch_assoc()):
+                    ?>
+                            <tr id="row-<?= $row['id']; ?>">
+                                <td><?= $sl++; ?></td>
+                                <td><?= htmlspecialchars($row['title']); ?></td>
+                                <td>
+                                    <?php if (!empty($row['image']) && file_exists(__DIR__ . '/../assets/images/slides/' . $row['image'])): ?>
+                                        <img src="../assets/images/slides/<?= $row['image']; ?>" width="60" alt="Slide Image">
+                                    <?php else: ?>
+                                        <span class="badge bg-secondary">No Image</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td>
+                                    <?= date('d M Y, h:i A', strtotime($row['start_time'])); ?><br>to<br><?= date('d M Y, h:i A', strtotime($row['end_time'])); ?>
+                                </td>
+                                <td>
+                                    <span class="badge bg-<?= $row['status'] === 'Active' ? 'success' : 'secondary'; ?>" id="status-label-<?= $row['id']; ?>">
+                                        <?= $row['status']; ?>
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="edit.php?id=<?= $row['id']; ?>" class="btn btn-sm btn-warning" title="Edit Slide">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
 
-                        if ($result && $result->num_rows > 0):
-                            while ($row = $result->fetch_assoc()):
-                        ?>
-                                <tr id="row-<?= $row['id']; ?>">
-                                    <td><strong><?= $sl++; ?></strong></td>
-                                    <td>
-                                        <strong style="color: var(--dark-color);"><?= htmlspecialchars($row['title']); ?></strong>
-                                    </td>
-                                    <td>
-                                        <?php if (!empty($row['image']) && file_exists(__DIR__ . '/../assets/images/slides/' . $row['image'])): ?>
-                                            <img src="../assets/images/slides/<?= $row['image']; ?>" width="60" alt="Slide Image" class="slide-image">
-                                        <?php else: ?>
-                                            <span class="badge bg-secondary">No Image</span>
-                                        <?php endif; ?>
-                                    </td>
-                                    <td>
-                                        <div class="time-display">
-                                            <strong>From:</strong> <?= date('d M Y, h:i A', strtotime($row['start_time'])); ?><br>
-                                            <strong>To:</strong> <?= date('d M Y, h:i A', strtotime($row['end_time'])); ?>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-<?= $row['status'] === 'Active' ? 'success' : 'secondary'; ?>" id="status-label-<?= $row['id']; ?>">
-                                            <?= $row['status']; ?>
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <div class="action-buttons">
-                                            <a href="edit.php?id=<?= $row['id']; ?>" class="btn btn-sm btn-warning" title="Edit Slide">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
+                                    <button class="btn btn-sm btn-danger btn-delete" data-id="<?= $row['id']; ?>" title="Delete Slide">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
 
-                                            <button class="btn btn-sm btn-danger btn-delete" data-id="<?= $row['id']; ?>" title="Delete Slide">
-                                                <i class="fas fa-trash-alt"></i>
-                                            </button>
+                                    <button class="btn btn-sm btn-info btn-status-toggle" data-id="<?= $row['id']; ?>" title="Toggle Status">
+                                        <i class="fas fa-toggle-<?= $row['status'] === 'Active' ? 'on' : 'off'; ?>"></i>
+                                    </button>
 
-                                            <button class="btn btn-sm btn-info btn-status-toggle" data-id="<?= $row['id']; ?>" title="Toggle Status">
-                                                <i class="fas fa-toggle-<?= $row['status'] === 'Active' ? 'on' : 'off'; ?>"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            <?php
-                            endwhile;
-                        else:
-                            ?>
-                            <tr>
-                                <td colspan="6" class="text-center" style="color: #64748b; padding: 3rem;">
-                                    <i class="fas fa-images" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.3;"></i><br>
-                                    <strong>No slides found.</strong><br>
-                                    <small>Create your first slide to get started!</small>
                                 </td>
                             </tr>
-                        <?php endif; ?>
-                    </tbody>
-                </table>
-            </div>
+                        <?php
+                        endwhile;
+                    else:
+                        ?>
+                        <tr>
+                            <td colspan="6" class="text-center text-muted">No slides found.</td>
+                        </tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
@@ -775,35 +717,12 @@ require_once __DIR__ . '/../app/db.php';
 <?php require_once __DIR__ . '/inc/footer.php'; ?>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const sidebar = document.getElementById('sidebar');
-        const mainContent = document.getElementById('mainContent');
-        const sidebarToggle = document.getElementById('sidebarToggle');
-
-        sidebarToggle.addEventListener('click', function() {
-            sidebar.classList.toggle('collapsed');
-            mainContent.classList.toggle('expanded');
-        });
-
-        // Mobile sidebar toggle
-        if (window.innerWidth <= 768) {
-            sidebarToggle.addEventListener('click', function() {
-                sidebar.classList.toggle('show');
-            });
-        }
-    });
-
     $(document).ready(function() {
-        if ($.fn.DataTable.isDataTable('#datatables')) {
-            $('#datatables').DataTable().destroy();
-        }
+        $('#datatables').DataTable();
 
-        $('#datatables').DataTable({
-            "pageLength": 10,
-            "responsive": true,
-            "dom": '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
-                '<"row"<"col-sm-12"tr>>' +
-                '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
+        $('#sidebarToggle').click(function() {
+            $('#sidebar').toggleClass('collapsed');
+            $('#mainContent').toggleClass('expanded');
         });
 
         const urlParams = new URLSearchParams(window.location.search);
@@ -834,10 +753,9 @@ require_once __DIR__ . '/../app/db.php';
                 text: "This will delete the slide permanently!",
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#ef4444',
-                cancelButtonColor: '#6b7280',
-                confirmButtonText: 'Yes, delete it!',
-                cancelButtonText: 'Cancel'
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, delete it!'
             }).then((result) => {
                 if (result.isConfirmed) {
                     $.ajax({
@@ -914,21 +832,26 @@ require_once __DIR__ . '/../app/db.php';
                 }
             });
         });
-    });
 
-    function toggleProfileDropdown() {
-        const dropdown = document.getElementById('profileDropdown');
-        dropdown.classList.toggle('show');
-    }
-
-    // Close dropdown when clicking outside
-    document.addEventListener('click', function(event) {
-        const avatar = document.getElementById('userAvatar');
-        const dropdown = document.getElementById('profileDropdown');
-
-        if (!avatar.contains(event.target)) {
-            dropdown.classList.remove('show');
+        function toggleProfileDropdown() {
+            const dropdown = document.getElementById('profileDropdown');
+            dropdown.classList.toggle('show');
         }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const userAvatar = document.getElementById('userAvatar');
+            const dropdown = document.getElementById('profileDropdown');
+
+            if (!userAvatar.contains(event.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+
+        // Make functions global
+        window.toggleProfileDropdown = toggleProfileDropdown;
+        window.uploadProfilePhoto = uploadProfilePhoto;
+        window.removeProfilePhoto = removeProfilePhoto;
     });
 
     function uploadProfilePhoto(input) {
@@ -938,7 +861,14 @@ require_once __DIR__ . '/../app/db.php';
             formData.append('action', 'upload_profile_photo');
 
             // Show loading
-            showNotification('Uploading photo...', 'info');
+            Swal.fire({
+                toast: true,
+                icon: 'info',
+                title: 'Uploading photo...',
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 2000
+            });
 
             $.ajax({
                 url: 'profile_action.php',
@@ -949,76 +879,88 @@ require_once __DIR__ . '/../app/db.php';
                 dataType: 'json',
                 success: function(response) {
                     if (response.status === 'success') {
-                        showNotification('Profile photo updated successfully!', 'success');
+                        Swal.fire({
+                            toast: true,
+                            icon: 'success',
+                            title: 'Profile photo updated successfully!',
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 3000
+                        });
                         // Reload the page to show new photo
                         setTimeout(() => {
                             window.location.reload();
                         }, 1500);
                     } else {
-                        showNotification(response.message || 'Failed to upload photo', 'error');
+                        Swal.fire('Error', response.message || 'Failed to upload photo', 'error');
                     }
                 },
                 error: function(xhr, status, error) {
-                    showNotification('Upload failed: ' + error, 'error');
+                    Swal.fire('Error', 'Upload failed: ' + error, 'error');
                 }
             });
         }
     }
 
     function removeProfilePhoto() {
-        if (confirm('Are you sure you want to remove your profile photo?')) {
-            $.ajax({
-                url: 'profile_action.php',
-                type: 'POST',
-                data: {
-                    action: 'remove_profile_photo'
-                },
-                dataType: 'json',
-                success: function(response) {
-                    if (response.status === 'success') {
-                        showNotification('Profile photo removed successfully!', 'success');
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 1500);
-                    } else {
-                        showNotification(response.message || 'Failed to remove photo', 'error');
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "This will remove your profile photo!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Yes, remove it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: 'profile_action.php',
+                    type: 'POST',
+                    data: {
+                        action: 'remove_profile_photo'
+                    },
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            Swal.fire({
+                                toast: true,
+                                icon: 'success',
+                                title: 'Profile photo removed successfully!',
+                                position: 'top-end',
+                                showConfirmButton: false,
+                                timer: 3000
+                            });
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 1500);
+                        } else {
+                            Swal.fire('Error', response.message || 'Failed to remove photo', 'error');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        Swal.fire('Error', 'Remove failed: ' + error, 'error');
                     }
-                },
-                error: function(xhr, status, error) {
-                    showNotification('Remove failed: ' + error, 'error');
-                }
-            });
-        }
-    }
-
-    function showNotification(message, type) {
-        // Remove existing notifications
-        const existingNotifications = document.querySelectorAll('.notification');
-        existingNotifications.forEach(notification => notification.remove());
-
-        // Create new notification
-        const notification = document.createElement('div');
-        notification.className = `notification ${type}`;
-        notification.textContent = message;
-        document.body.appendChild(notification);
-
-        // Show notification
-        setTimeout(() => {
-            notification.classList.add('show');
-        }, 100);
-
-        // Hide notification after 3 seconds
-        setTimeout(() => {
-            notification.classList.remove('show');
-            setTimeout(() => {
-                notification.remove();
-            }, 300);
-        }, 3000);
+                });
+            }
+        });
     }
 
     function logout() {
-        if (confirm('Are you sure you want to logout?')) {
-            window.location.href = 'logout.php';
-        }
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You will be logged out!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Yes, logout!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = 'logout.php';
+            }
+        });
     }
+
+    // Make logout function global
+    window.logout = logout;
 </script>

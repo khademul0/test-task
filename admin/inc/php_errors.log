@@ -1,0 +1,13 @@
+[20-Aug-2025 07:26:25 UTC] PHP Fatal error:  Uncaught mysqli_sql_exception: Cannot delete or update a parent row: a foreign key constraint fails (`task-project`.`order_items`, CONSTRAINT `order_items_ibfk_2` FOREIGN KEY (`work_id`) REFERENCES `works` (`id`) ON DELETE RESTRICT) in C:\laragon\www\task-project\admin\inc\action_works.php:199
+Stack trace:
+#0 C:\laragon\www\task-project\admin\inc\action_works.php(199): mysqli_stmt->execute()
+#1 {main}
+  thrown in C:\laragon\www\task-project\admin\inc\action_works.php on line 199
+[20-Aug-2025 07:27:35 UTC] PHP Fatal error:  Uncaught mysqli_sql_exception: Cannot delete or update a parent row: a foreign key constraint fails (`task-project`.`order_items`, CONSTRAINT `order_items_ibfk_2` FOREIGN KEY (`work_id`) REFERENCES `works` (`id`) ON DELETE RESTRICT) in C:\laragon\www\task-project\admin\inc\action_works.php:199
+Stack trace:
+#0 C:\laragon\www\task-project\admin\inc\action_works.php(199): mysqli_stmt->execute()
+#1 {main}
+  thrown in C:\laragon\www\task-project\admin\inc\action_works.php on line 199
+[20-Aug-2025 07:30:23 UTC] Unexpected error in action_works.php: Cannot delete or update a parent row: a foreign key constraint fails (`task-project`.`order_items`, CONSTRAINT `order_items_ibfk_2` FOREIGN KEY (`work_id`) REFERENCES `works` (`id`) ON DELETE RESTRICT)
+[20-Aug-2025 07:30:35 UTC] Unexpected error in action_works.php: Cannot delete or update a parent row: a foreign key constraint fails (`task-project`.`order_items`, CONSTRAINT `order_items_ibfk_2` FOREIGN KEY (`work_id`) REFERENCES `works` (`id`) ON DELETE RESTRICT)
+[20-Aug-2025 07:34:37 UTC] Unexpected error in action_works.php: Cannot delete or update a parent row: a foreign key constraint fails (`task-project`.`order_items`, CONSTRAINT `order_items_ibfk_2` FOREIGN KEY (`work_id`) REFERENCES `works` (`id`) ON DELETE RESTRICT) in C:\laragon\www\task-project\admin\inc\action_works.php on line 257

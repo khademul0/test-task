@@ -1,647 +1,619 @@
 <?php
-require_once __DIR__ . '/inc/header.php';
-require_once __DIR__ . '/../app/db.php';
+require_once 'inc/header.php';
+require_once '../app/db.php';
 ?>
 
 <style>
-    /* === Shared Modern Dashboard Styles (same look as slider.php) === */
+    /* Updated color scheme to match login page glassy design */
     :root {
-        --primary-color: #4f46e5;
-        --secondary-color: #f8fafc;
-        --accent-color: #06b6d4;
+        /* Professional glassy color palette matching login.php */
+        --primary-color: #164e63;
+        --primary-dark: #0f3a47;
+        --secondary-color: #ec4899;
+        --accent-color: #f59e0b;
         --success-color: #10b981;
+        --danger-color: #dc2626;
         --warning-color: #f59e0b;
-        --danger-color: #ef4444;
-        --dark-color: #1e293b;
-        --light-color: #ffffff;
+        --light-bg: rgba(255, 255, 255, 0.8);
+        --dark-bg: rgba(15, 23, 42, 0.9);
+        --card-bg: rgba(255, 255, 255, 0.2);
+        --glass-bg: rgba(255, 255, 255, 0.15);
+        --glass-border: rgba(255, 255, 255, 0.25);
+        --text-primary: #164e63;
+        --text-secondary: #475569;
+        --border-color: rgba(0, 0, 0, 0.1);
+        --shadow: 0 25px 50px rgba(22, 78, 99, 0.15);
+        --shadow-lg: 0 35px 70px rgba(22, 78, 99, 0.2);
+        --glow: 0 0 30px rgba(22, 78, 99, 0.3);
+        --glass-gradient: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%);
         --sidebar-width: 280px;
         --sidebar-collapsed-width: 80px;
+        --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
+    /* Updated body background to match login page gradient */
     body {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+        background: linear-gradient(135deg, #ecfeff 0%, #cffafe 25%, #a5f3fc 50%, #67e8f9 75%, #22d3ee 100%);
         min-height: 100vh;
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        position: relative;
+        overflow-x: hidden;
     }
 
-    /* Sidebar */
+    /* Enhanced sidebar with darker glassy design */
     .sidebar {
         position: fixed;
         top: 0;
         left: 0;
         height: 100vh;
         width: var(--sidebar-width);
-        background: linear-gradient(180deg, var(--dark-color) 0%, #334155 100%);
-        transition: all .3s ease;
+        backdrop-filter: blur(30px);
+        background: rgba(15, 23, 42, 0.95);
+        border-right: 2px solid rgba(255, 255, 255, 0.15);
+        transition: var(--transition);
         z-index: 1000;
-        box-shadow: 4px 0 20px rgba(0, 0, 0, .1)
+        box-shadow: 4px 0 30px rgba(0, 0, 0, 0.2);
     }
 
     .sidebar.collapsed {
-        width: var(--sidebar-collapsed-width)
+        width: var(--sidebar-collapsed-width);
     }
 
     .sidebar-header {
         padding: 1.5rem;
-        border-bottom: 1px solid rgba(255, 255, 255, .1);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         display: flex;
         align-items: center;
-        gap: 1rem
+        gap: 1rem;
+        background: rgba(255, 255, 255, 0.05);
     }
 
     .sidebar-logo {
         width: 40px;
         height: 40px;
-        background: var(--primary-color);
-        border-radius: 10px;
+        background: linear-gradient(135deg, var(--secondary-color), var(--accent-color));
+        border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
-        color: #fff;
+        color: white;
         font-size: 1.2rem;
-        font-weight: bold
+        font-weight: bold;
+        box-shadow: 0 4px 15px rgba(236, 72, 153, 0.3);
     }
 
     .sidebar-title {
-        color: #fff;
+        color: white;
         font-size: 1.25rem;
         font-weight: 600;
         margin: 0;
-        transition: opacity .3s ease
+        transition: opacity 0.3s ease;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
     }
 
     .sidebar.collapsed .sidebar-title {
-        opacity: 0
+        opacity: 0;
     }
 
     .sidebar-nav {
-        padding: 1rem 0
+        padding: 1rem 0;
     }
 
     .nav-item {
-        margin: .25rem 1rem
+        margin: 0.25rem 1rem;
     }
 
+    /* Enhanced nav links with glassy effect */
     .nav-link {
         display: flex;
         align-items: center;
         gap: 1rem;
-        padding: .75rem 1rem;
-        color: rgba(255, 255, 255, .8);
+        padding: 0.75rem 1rem;
+        color: rgba(255, 255, 255, 0.8);
         text-decoration: none;
-        border-radius: 10px;
-        transition: all .3s ease;
-        position: relative
+        border-radius: 12px;
+        transition: var(--transition);
+        position: relative;
+        backdrop-filter: blur(10px);
+        cursor: pointer;
     }
 
     .nav-link:hover,
     .nav-link.active {
-        background: rgba(255, 255, 255, .1);
-        color: #fff;
-        transform: translateX(5px)
+        background: rgba(255, 255, 255, 0.15);
+        color: white;
+        transform: translateX(5px);
+        box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
     }
 
     .nav-link i {
         width: 20px;
         text-align: center;
-        font-size: 1.1rem
+        font-size: 1.1rem;
     }
 
     .sidebar.collapsed .nav-link span {
-        opacity: 0
+        opacity: 0;
     }
 
-    /* Main */
+    /* Main Content */
     .main-content {
         margin-left: var(--sidebar-width);
-        transition: margin-left .3s ease;
-        min-height: 100vh
+        transition: margin-left 0.3s ease;
+        min-height: 100vh;
     }
 
     .main-content.expanded {
-        margin-left: var(--sidebar-collapsed-width)
+        margin-left: var(--sidebar-collapsed-width);
     }
 
+    /* Enhanced top bar with dark blue glassy design */
     .top-bar {
-        background: rgba(255, 255, 255, .95);
-        backdrop-filter: blur(10px);
+        backdrop-filter: blur(30px);
+        background: rgba(30, 58, 138, 0.9);
+        border: 1px solid rgba(255, 255, 255, 0.2);
         padding: 1rem 2rem;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        box-shadow: 0 2px 20px rgba(0, 0, 0, .1);
+        box-shadow: 0 8px 32px rgba(30, 58, 138, 0.3);
         position: sticky;
         top: 0;
-        z-index: 100
+        z-index: 100;
+        border-radius: 0 0 20px 20px;
+        margin: 0 1rem;
     }
 
     .sidebar-toggle {
-        background: none;
-        border: none;
+        background: rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.3);
         font-size: 1.2rem;
-        color: var(--dark-color);
+        color: white;
         cursor: pointer;
-        padding: .5rem;
-        border-radius: 8px;
-        transition: background .3s ease
+        padding: 0.5rem;
+        border-radius: 10px;
+        transition: var(--transition);
+        backdrop-filter: blur(10px);
     }
 
     .sidebar-toggle:hover {
-        background: rgba(0, 0, 0, .1)
+        background: rgba(255, 255, 255, 0.3);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
     }
 
     .user-info {
         display: flex;
         align-items: center;
         gap: 1rem;
-        position: relative
+        position: relative;
     }
 
+    /* Enhanced user avatar with glassy styling */
     .user-avatar {
         width: 50px;
         height: 50px;
         border-radius: 50%;
-        background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
         display: flex;
         align-items: center;
         justify-content: center;
-        color: #fff;
+        color: white;
         font-weight: 600;
         font-size: 1.2rem;
         cursor: pointer;
         position: relative;
         overflow: hidden;
-        transition: all .3s ease;
-        border: 3px solid #fff;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, .1)
+        transition: var(--transition);
+        border: 3px solid rgba(255, 255, 255, 0.5);
+        box-shadow: 0 8px 25px rgba(22, 78, 99, 0.2);
+    }
+
+    .user-avatar:hover {
+        transform: scale(1.05);
+        box-shadow: 0 12px 35px rgba(22, 78, 99, 0.3);
     }
 
     .user-avatar img {
         width: 100%;
         height: 100%;
         object-fit: cover;
-        border-radius: 50%
-    }
-
-    .user-avatar:hover {
-        transform: scale(1.05);
-        box-shadow: 0 6px 20px rgba(0, 0, 0, .15)
+        border-radius: 50%;
     }
 
     .profile-upload-overlay {
         position: absolute;
-        inset: 0;
-        background: rgba(0, 0, 0, .7);
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.7);
         display: flex;
         align-items: center;
         justify-content: center;
         opacity: 0;
-        transition: opacity .3s ease;
-        color: #fff;
-        font-size: .9rem
+        transition: opacity 0.3s ease;
+        color: white;
+        font-size: 0.9rem;
     }
 
     .user-avatar:hover .profile-upload-overlay {
-        opacity: 1
+        opacity: 1;
     }
 
+    /* Enhanced profile dropdown with glassy design */
     .profile-dropdown {
         position: absolute;
         top: 100%;
         right: 0;
-        background: #fff;
-        border-radius: 12px;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, .15);
-        padding: .5rem 0;
+        backdrop-filter: blur(25px);
+        background: rgba(255, 255, 255, 0.25);
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        border-radius: 16px;
+        box-shadow: var(--shadow-lg);
+        padding: 0.5rem 0;
         min-width: 200px;
         opacity: 0;
         visibility: hidden;
         transform: translateY(-10px);
-        transition: all .3s ease;
+        transition: var(--transition);
         z-index: 1000;
-        border: 1px solid #e2e8f0
     }
 
     .profile-dropdown.show {
         opacity: 1;
         visibility: visible;
-        transform: translateY(0)
+        transform: translateY(0);
     }
 
     .profile-dropdown-item {
         display: flex;
         align-items: center;
-        gap: .75rem;
-        padding: .75rem 1rem;
+        gap: 0.75rem;
+        padding: 0.75rem 1rem;
         cursor: pointer;
-        transition: background .2s ease;
-        color: var(--dark-color);
-        font-size: .9rem
+        transition: var(--transition);
+        color: var(--text-primary);
+        font-size: 0.9rem;
+        font-weight: 500;
     }
 
     .profile-dropdown-item:hover {
-        background: #f8fafc
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateX(5px);
     }
 
     .profile-dropdown-item i {
         width: 16px;
-        color: #64748b
+        color: var(--text-secondary);
     }
 
     #profilePhotoInput {
-        display: none
+        display: none;
     }
 
-    /* Content */
-    .dashboard-content {
-        padding: 2rem
-    }
-
-    .welcome-section {
-        background: linear-gradient(135deg, var(--light-color) 0%, #f1f5f9 100%);
-        border-radius: 20px;
-        padding: 2rem;
-        margin-bottom: 2rem;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, .1)
-    }
-
-    .welcome-title {
-        color: var(--dark-color);
-        font-size: 2rem;
-        font-weight: 700;
-        margin-bottom: .5rem;
-        display: flex;
-        align-items: center;
-        gap: 1rem
-    }
-
-    .welcome-subtitle {
-        color: #64748b;
-        font-size: 1.1rem;
-        margin: 0
-    }
-
+    /* Content cards with glassy design */
     .content-card {
-        background: #fff;
+        backdrop-filter: blur(25px);
+        background: rgba(255, 255, 255, 0.25);
+        border: 1px solid rgba(255, 255, 255, 0.25);
         border-radius: 20px;
-        padding: 2rem;
         margin-bottom: 2rem;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, .1);
-        transition: all .3s ease
+        overflow: hidden;
+        box-shadow: var(--shadow);
+        position: relative;
     }
 
-    .content-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 20px 60px rgba(0, 0, 0, .15)
+    .content-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
     }
 
     .card-header {
+        padding: 1.5rem 2rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 1.5rem;
-        padding-bottom: 1rem;
-        border-bottom: 2px solid #f1f5f9
+        background: rgba(255, 255, 255, 0.1);
     }
 
     .card-title {
-        color: var(--dark-color);
-        font-size: 1.5rem;
+        font-family: 'Work Sans', sans-serif;
         font-weight: 600;
+        color: var(--text-primary);
         margin: 0;
         display: flex;
         align-items: center;
-        gap: .75rem
+        gap: 0.5rem;
+        font-size: 1.25rem;
     }
 
-    .card-title i {
-        color: var(--primary-color)
+    .dashboard-content {
+        padding: 2rem;
     }
 
+    /* Enhanced table styling with glassy design */
     .table-container {
-        background: #fff;
-        border-radius: 15px;
-        overflow: hidden;
-        box-shadow: 0 5px 20px rgba(0, 0, 0, .1)
+        overflow-x: auto;
     }
 
-    .modern-table {
+    .table {
         width: 100%;
         border-collapse: collapse;
-        margin: 0
+        margin: 0;
+        background: transparent;
     }
 
-    .modern-table thead {
-        background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
-        color: #fff
-    }
-
-    .modern-table thead th {
-        padding: 1.25rem 1rem;
+    .table th {
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--text-primary);
         font-weight: 600;
+        padding: 1rem;
         text-align: left;
-        border: none;
-        font-size: .9rem;
-        text-transform: uppercase;
-        letter-spacing: .5px
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        font-size: 0.9rem;
     }
 
-    .modern-table tbody tr {
-        transition: all .3s ease;
-        border-bottom: 1px solid #f1f5f9
+    .table td {
+        padding: 1rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        color: var(--text-secondary);
+        vertical-align: middle;
     }
 
-    .modern-table tbody tr:hover {
-        background: #f8fafc;
-        transform: scale(1.01)
+    .table tbody tr {
+        transition: var(--transition);
     }
 
-    .modern-table tbody td {
-        padding: 1.25rem 1rem;
-        border: none;
-        vertical-align: middle
+    .table tbody tr:hover {
+        background: rgba(255, 255, 255, 0.1);
     }
 
-    .modern-table tbody tr:last-child {
-        border-bottom: none
-    }
-
+    /* Enhanced buttons with glassy design */
     .btn {
+        padding: 0.5rem 1rem;
         border-radius: 10px;
-        font-weight: 500;
-        padding: .75rem 1.5rem;
-        transition: all .3s ease;
         border: none;
+        cursor: pointer;
+        transition: var(--transition);
+        font-weight: 500;
         text-decoration: none;
         display: inline-flex;
         align-items: center;
-        gap: .5rem;
-        cursor: pointer
+        gap: 0.5rem;
+        backdrop-filter: blur(10px);
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        color: white;
+        box-shadow: 0 4px 15px rgba(22, 78, 99, 0.3);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(22, 78, 99, 0.4);
+    }
+
+    .btn-sm {
+        padding: 0.375rem 0.75rem;
+        font-size: 0.875rem;
+    }
+
+    .btn-info {
+        background: linear-gradient(135deg, #0ea5e9, #0284c7);
+        color: white;
+        box-shadow: 0 4px 15px rgba(14, 165, 233, 0.3);
+    }
+
+    .btn-danger {
+        background: linear-gradient(135deg, var(--danger-color), #b91c1c);
+        color: white;
+        box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3);
+    }
+
+    .btn-success {
+        background: linear-gradient(135deg, var(--success-color), #059669);
+        color: white;
+        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-secondary {
+        background: rgba(107, 114, 128, 0.8);
+        color: white;
+        box-shadow: 0 4px 15px rgba(107, 114, 128, 0.3);
     }
 
     .btn:hover {
         transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(0, 0, 0, .2);
-        text-decoration: none
     }
 
-    .btn-primary {
-        background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
-        color: #fff
-    }
-
-    .btn-warning {
-        background: linear-gradient(135deg, var(--warning-color), #fbbf24);
-        color: #fff
-    }
-
-    .btn-danger {
-        background: linear-gradient(135deg, var(--danger-color), #f87171);
-        color: #fff
-    }
-
-    .btn-info {
-        background: linear-gradient(135deg, var(--accent-color), #0ea5e9);
-        color: #fff
-    }
-
-    .btn-success {
-        background: linear-gradient(135deg, var(--success-color), #34d399);
-        color: #fff
-    }
-
-    .btn-secondary {
-        background: linear-gradient(135deg, #6b7280, #9ca3af);
-        color: #fff
-    }
-
-    .btn-sm {
-        padding: .5rem 1rem;
-        font-size: .875rem
+    .img-thumbnail {
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        backdrop-filter: blur(10px);
     }
 
     .badge {
+        padding: 0.375rem 0.75rem;
         border-radius: 8px;
+        font-size: 0.75rem;
         font-weight: 500;
-        padding: .5rem .75rem;
-        font-size: .75rem;
-        text-transform: uppercase;
-        letter-spacing: .5px
-    }
-
-    .bg-success {
-        background: linear-gradient(135deg, var(--success-color), #34d399) !important;
-        color: #fff
     }
 
     .bg-secondary {
-        background: linear-gradient(135deg, #6b7280, #9ca3af) !important;
-        color: #fff
+        background: rgba(107, 114, 128, 0.8) !important;
+        color: white;
     }
 
-    .thumb {
-        border-radius: 8px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, .1);
-        transition: transform .3s ease
+    .text-muted {
+        color: var(--text-secondary) !important;
     }
 
-    .thumb:hover {
-        transform: scale(1.08)
-    }
-
-    .action-buttons {
-        display: flex;
-        gap: .5rem;
-        align-items: center
-    }
-
-    .notification {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 1rem 1.5rem;
-        border-radius: 10px;
-        color: #fff;
-        font-weight: 500;
-        z-index: 9999;
-        opacity: 0;
-        transform: translateX(100%);
-        transition: all .3s ease
-    }
-
-    .notification.show {
-        opacity: 1;
-        transform: translateX(0)
-    }
-
-    .notification.success {
-        background: linear-gradient(135deg, var(--success-color), #34d399)
-    }
-
-    .notification.error {
-        background: linear-gradient(135deg, var(--danger-color), #f87171)
-    }
-
-    .notification.info {
-        background: linear-gradient(135deg, var(--accent-color), #0ea5e9)
-    }
-
-    @media (max-width:768px) {
+    /* Responsive design */
+    @media (max-width: 768px) {
         .sidebar {
-            transform: translateX(-100%)
+            transform: translateX(-100%);
         }
 
         .sidebar.show {
-            transform: translateX(0)
+            transform: translateX(0);
         }
 
         .main-content {
-            margin-left: 0
+            margin-left: 0;
+        }
+
+        .top-bar {
+            margin: 0;
+            border-radius: 0;
         }
 
         .dashboard-content {
-            padding: 1rem
+            padding: 1rem;
         }
-
-        .card-header {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 1rem
-        }
-
-        .action-buttons {
-            flex-direction: column;
-            width: 100%
-        }
-
-        .btn-sm {
-            width: 100%;
-            justify-content: center
-        }
-    }
-
-    @keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(30px)
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0)
-        }
-    }
-
-    .fade-in-up {
-        animation: fadeInUp .6s ease forwards
     }
 </style>
 
 <!-- Sidebar -->
 <div class="sidebar" id="sidebar">
     <div class="sidebar-header">
-        <div class="sidebar-logo"><i class="fas fa-cube"></i></div>
+        <div class="sidebar-logo">
+            <i class="fas fa-cube"></i>
+        </div>
         <h3 class="sidebar-title">Dashboard</h3>
     </div>
+
     <nav class="sidebar-nav">
         <div class="nav-item">
             <a href="dashboard.php" class="nav-link">
-                <i class="fas fa-tachometer-alt"></i><span>Dashboard</span>
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
             </a>
         </div>
         <div class="nav-item">
             <a href="works.php" class="nav-link active">
-                <i class="fas fa-briefcase"></i><span>Works</span>
+                <i class="fas fa-briefcase"></i>
+                <span>Works</span>
             </a>
         </div>
         <div class="nav-item">
             <a href="slider.php" class="nav-link">
-                <i class="fas fa-sliders-h"></i><span>Slides</span>
+                <i class="fas fa-sliders-h"></i>
+                <span>Slides</span>
             </a>
         </div>
         <div class="nav-item">
             <a href="#" class="nav-link">
-                <i class="fas fa-chart-bar"></i><span>Analytics</span>
+                <i class="fas fa-chart-bar"></i>
+                <span>Analytics</span>
             </a>
         </div>
         <div class="nav-item">
             <a href="#" class="nav-link">
-                <i class="fas fa-cog"></i><span>Settings</span>
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
             </a>
         </div>
         <div class="nav-item">
-            <a href="logout.php" class="nav-link">
-                <i class="fas fa-sign-out-alt"></i><span>Logout</span>
-            </a>
+            <div class="nav-link" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </div>
         </div>
     </nav>
 </div>
 
-<!-- Main -->
+<!-- Main Content -->
 <div class="main-content" id="mainContent">
     <!-- Top Bar -->
     <div class="top-bar">
-        <button class="sidebar-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+        <button class="sidebar-toggle" id="sidebarToggle">
+            <i class="fas fa-bars"></i>
+        </button>
 
         <div class="user-info">
+            <!-- Enhanced user avatar with profile photo functionality from profile.php -->
             <div class="user-avatar" id="userAvatar" onclick="toggleProfileDropdown()">
                 <?php
-                $user_id = intval($_SESSION['user_id'] ?? 0);
+                // Get user profile photo from database
+                $user_id = intval($_SESSION['user_id']);
                 $stmt = $conn->prepare("SELECT photo FROM users WHERE id = ?");
                 $stmt->bind_param("i", $user_id);
                 $stmt->execute();
                 $user_data = $stmt->get_result()->fetch_assoc();
                 $profile_photo = $user_data['photo'] ?? null;
 
-                if ($profile_photo && file_exists("../assets/images/profiles/" . $profile_photo)): ?>
+                if ($profile_photo && file_exists("../assets/images/profiles/" . $profile_photo)):
+                ?>
                     <img src="../assets/images/profiles/<?= htmlspecialchars($profile_photo) ?>" alt="Profile Photo">
-                    <div class="profile-upload-overlay"><i class="fas fa-camera"></i></div>
+                    <div class="profile-upload-overlay">
+                        <i class="fas fa-camera"></i>
+                    </div>
                 <?php else: ?>
                     <?= strtoupper(substr($_SESSION['user_name'] ?? 'A', 0, 1)) ?>
-                    <div class="profile-upload-overlay"><i class="fas fa-camera"></i></div>
+                    <div class="profile-upload-overlay">
+                        <i class="fas fa-camera"></i>
+                    </div>
                 <?php endif; ?>
 
+                <!-- Profile Dropdown -->
                 <div class="profile-dropdown" id="profileDropdown">
                     <div class="profile-dropdown-item" onclick="document.getElementById('profilePhotoInput').click()">
-                        <i class="fas fa-camera"></i><span>Change Photo</span>
+                        <i class="fas fa-camera"></i>
+                        <span>Change Photo</span>
                     </div>
                     <div class="profile-dropdown-item" onclick="removeProfilePhoto()">
-                        <i class="fas fa-trash"></i><span>Remove Photo</span>
+                        <i class="fas fa-trash"></i>
+                        <span>Remove Photo</span>
                     </div>
-                    <hr style="margin:.5rem 0;border:none;border-top:1px solid #e2e8f0;">
+                    <hr style="margin: 0.5rem 0; border: none; border-top: 1px solid #e2e8f0;">
                     <div class="profile-dropdown-item" onclick="window.location.href='profile.php'">
-                        <i class="fas fa-user"></i><span>Profile Settings</span>
+                        <i class="fas fa-user"></i>
+                        <span>Profile Settings</span>
                     </div>
                     <div class="profile-dropdown-item" onclick="logout()">
-                        <i class="fas fa-sign-out-alt"></i><span>Logout</span>
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
                     </div>
                 </div>
             </div>
+
+            <!-- Hidden file input for profile photo upload -->
             <input type="file" id="profilePhotoInput" accept="image/*" onchange="uploadProfilePhoto(this)">
+
             <div>
-                <div style="font-weight:600;color:var(--dark-color);"><?= htmlspecialchars($_SESSION['user_name'] ?? 'Admin') ?></div>
-                <div style="font-size:.875rem;color:#64748b;">Administrator</div>
+                <div style="font-weight: 600; color: var(--dark-color);">
+                    <?= htmlspecialchars($_SESSION['user_name'] ?? 'Admin') ?>
+                </div>
+                <div style="font-size: 0.85rem; color: #64748b;">Administrator</div>
             </div>
         </div>
     </div>
 
-    <!-- Content -->
+    <!-- Dashboard Content -->
     <div class="dashboard-content">
-        <div class="welcome-section fade-in-up">
-            <h1 class="welcome-title"><i class="fas fa-briefcase"></i> Manage Works</h1>
-            <p class="welcome-subtitle">Create, edit, and manage your portfolio works</p>
-        </div>
-
-        <div class="content-card fade-in-up" style="animation-delay:.2s">
+        <!-- Works Content Card -->
+        <div class="content-card">
             <div class="card-header">
-                <h4 class="card-title"><i class="fas fa-images"></i> All Works</h4>
+                <h4 class="card-title">
+                    <i class="fas fa-paint-brush"></i>
+                    All Works
+                </h4>
                 <a href="create_works.php" class="btn btn-primary">
-                    <i class="fas fa-plus"></i> Add Work
+                    <i class="fas fa-plus"></i>
+                    Add New
                 </a>
             </div>
 
             <div class="table-container">
-                <table class="modern-table" id="datatables">
+                <table class="table" id="datatables">
                     <thead>
                         <tr>
                             <th>#</th>
@@ -656,67 +628,40 @@ require_once __DIR__ . '/../app/db.php';
                     </thead>
                     <tbody>
                         <?php
-                        $res = $conn->query("SELECT * FROM works ORDER BY id DESC");
+                        $works = $conn->query("SELECT * FROM works ORDER BY id DESC");
                         $i = 1;
-                        if ($res && $res->num_rows > 0):
-                            while ($work = $res->fetch_assoc()):
-                                $imgFile = $work['image'] ?? '';
-                                $imgPath = __DIR__ . '/../assets/img/works/' . $imgFile;
-                                $hasImg  = !empty($imgFile) && file_exists($imgPath);
-                                $active  = intval($work['status']) === 1;
-                                $desc    = trim($work['description'] ?? '');
-                                $descCut = mb_substr($desc, 0, 80) . (mb_strlen($desc) > 80 ? '...' : '');
+                        while ($work = $works->fetch_assoc()):
                         ?>
-                                <tr id="row-<?= $work['id'] ?>">
-                                    <td><strong><?= $i++ ?></strong></td>
-                                    <td>
-                                        <?php if ($hasImg): ?>
-                                            <img src="../assets/img/works/<?= htmlspecialchars($imgFile) ?>" width="70" height="50" class="thumb" alt="Work Image">
-                                        <?php else: ?>
-                                            <span class="badge bg-secondary">No Image</span>
-                                        <?php endif; ?>
-                                    </td>
-                                    <td><strong style="color:var(--dark-color)"><?= htmlspecialchars($work['title']) ?></strong></td>
-                                    <td style="color:#475569"><?= htmlspecialchars($descCut) ?></td>
-                                    <td>
-                                        <?php if (!empty($work['link'])): ?>
-                                            <a href="<?= htmlspecialchars($work['link']) ?>" target="_blank" rel="noopener noreferrer">View</a>
-                                        <?php else: ?>
-                                            <span class="text-muted">-</span>
-                                        <?php endif; ?>
-                                    </td>
-                                    <td>
-                                        <span class="badge <?= $active ? 'bg-success' : 'bg-secondary' ?>" id="status-label-<?= $work['id'] ?>">
-                                            <?= $active ? 'Active' : 'Inactive' ?>
-                                        </span>
-                                    </td>
-                                    <td><?= !empty($work['created_at']) ? date('d M Y, h:i A', strtotime($work['created_at'])) : '-' ?></td>
-                                    <td>
-                                        <div class="action-buttons">
-                                            <a href="edit_work.php?id=<?= $work['id'] ?>" class="btn btn-sm btn-warning" title="Edit Work">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
-                                            <button class="btn btn-sm btn-danger delete-work" data-id="<?= $work['id'] ?>" title="Delete Work">
-                                                <i class="fas fa-trash-alt"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-info btn-status-toggle" data-id="<?= $work['id'] ?>" title="Toggle Status">
-                                                <i class="fas fa-toggle-<?= $active ? 'on' : 'off' ?>"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            <?php
-                            endwhile;
-                        else:
-                            ?>
                             <tr>
-                                <td colspan="8" class="text-center" style="color:#64748b;padding:3rem">
-                                    <i class="fas fa-briefcase" style="font-size:3rem;margin-bottom:1rem;opacity:.3"></i><br>
-                                    <strong>No works found.</strong><br>
-                                    <small>Add your first work to get started!</small>
+                                <td><?= $i++ ?></td>
+                                <td>
+                                    <?php if (!empty($work['image']) && file_exists("../assets/img/works/" . $work['image'])): ?>
+                                        <img src="../assets/img/works/<?= htmlspecialchars($work['image']) ?>" width="70" height="50" class="img-thumbnail" alt="Work Image">
+                                    <?php else: ?>
+                                        <span class="badge bg-secondary">No Image</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td><?= htmlspecialchars($work['title']) ?></td>
+                                <td><?= htmlspecialchars(substr($work['description'], 0, 50)) ?>...</td>
+                                <td>
+                                    <?php if (!empty($work['link'])): ?>
+                                        <a href="<?= htmlspecialchars($work['link']) ?>" target="_blank" rel="noopener noreferrer">View Link</a>
+                                    <?php else: ?>
+                                        <span class="text-muted">-</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm toggle-status <?= $work['status'] ? 'btn-success' : 'btn-secondary' ?>" data-id="<?= $work['id'] ?>" data-status="<?= $work['status'] ?>">
+                                        <?= $work['status'] ? '<i class="fas fa-toggle-on"></i>' : '<i class="fas fa-toggle-off"></i>' ?>
+                                    </button>
+                                </td>
+                                <td><?= date('d M Y', strtotime($work['created_at'])) ?></td>
+                                <td>
+                                    <a href="edit_work.php?id=<?= $work['id'] ?>" class="btn btn-sm btn-info" title="Edit Work"><i class="fas fa-edit"></i></a>
+                                    <button class="btn btn-sm btn-danger delete-work" data-id="<?= $work['id'] ?>" title="Delete Work"><i class="fas fa-trash-alt"></i></button>
                                 </td>
                             </tr>
-                        <?php endif; ?>
+                        <?php endwhile; ?>
                     </tbody>
                 </table>
             </div>
@@ -724,69 +669,70 @@ require_once __DIR__ . '/../app/db.php';
     </div>
 </div>
 
-<?php require_once __DIR__ . '/inc/footer.php'; ?>
+<?php require_once 'inc/footer.php'; ?>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const sidebar = document.getElementById('sidebar');
-        const mainContent = document.getElementById('mainContent');
-        const sidebarToggle = document.getElementById('sidebarToggle');
-
-        sidebarToggle.addEventListener('click', function() {
-            sidebar.classList.toggle('collapsed');
-            mainContent.classList.toggle('expanded');
-
-            // mobile
-            if (window.innerWidth <= 768) sidebar.classList.toggle('show');
-        });
-    });
-
     $(document).ready(function() {
-        if ($.fn.DataTable.isDataTable('#datatables')) {
-            $('#datatables').DataTable().destroy();
-        }
-        $('#datatables').DataTable({
-            pageLength: 10,
-            responsive: true,
-            dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
-                '<"row"<"col-sm-12"tr>>' +
-                '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>'
+        // Initialize DataTables
+        $('#datatables').DataTable();
+
+        // Sidebar toggle functionality
+        $('#sidebarToggle').click(function() {
+            $('#sidebar').toggleClass('collapsed');
+            $('#mainContent').toggleClass('expanded');
         });
 
-        // URL toast (created/updated/deleted)
-        const urlParams = new URLSearchParams(window.location.search);
-        const msg = urlParams.get('msg');
-        if (msg) {
-            let toastText = '';
-            if (msg === 'created') toastText = 'Work created successfully!';
-            else if (msg === 'updated') toastText = 'Work updated successfully!';
-            else if (msg === 'deleted') toastText = 'Work deleted successfully!';
-            if (toastText) {
-                Swal.fire({
-                    toast: true,
-                    icon: 'success',
-                    title: toastText,
-                    position: 'top-end',
-                    showConfirmButton: false,
-                    timer: 3000
-                });
-            }
-        }
+        // Toggle status button click handler
+        $('.toggle-status').click(function() {
+            let button = $(this);
+            let id = button.data('id');
+            let currentStatus = button.data('status') === 1 || button.data('status') === '1' ? 1 : 0;
 
-        // Delete work
+            $.ajax({
+                url: 'inc/action_works.php',
+                method: 'POST',
+                data: {
+                    action: 'toggle_status',
+                    id: id,
+                    status: currentStatus
+                },
+                dataType: 'json',
+                success: function(response) {
+                    if (response.status === 'success') {
+                        let newStatus = currentStatus === 1 ? 0 : 1;
+                        button.data('status', newStatus);
+                        button.toggleClass('btn-success btn-secondary');
+                        button.html(newStatus === 1 ? '<i class="fas fa-toggle-on"></i>' : '<i class="fas fa-toggle-off"></i>');
+
+                        Swal.fire({
+                            toast: true,
+                            icon: 'success',
+                            title: response.message,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 2000
+                        });
+                    } else {
+                        Swal.fire('Error', response.message, 'error');
+                    }
+                },
+                error: function() {
+                    Swal.fire('Error', 'AJAX request failed', 'error');
+                }
+            });
+        });
+
+        // Delete button click handler
         $('.delete-work').click(function() {
-            const id = $(this).data('id');
+            let id = $(this).data('id');
             Swal.fire({
                 title: 'Are you sure?',
-                text: 'This work will be permanently deleted!',
+                text: "This work will be permanently deleted!",
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#ef4444',
-                cancelButtonColor: '#6b7280',
                 confirmButtonText: 'Yes, delete it!',
-                cancelButtonText: 'Cancel'
-            }).then((res) => {
-                if (res.isConfirmed) {
+            }).then(result => {
+                if (result.isConfirmed) {
                     $.ajax({
                         url: 'inc/action_works.php',
                         method: 'POST',
@@ -797,17 +743,7 @@ require_once __DIR__ . '/../app/db.php';
                         dataType: 'json',
                         success: function(response) {
                             if (response.status === 'success') {
-                                $('#row-' + id).fadeOut(500, function() {
-                                    $(this).remove();
-                                });
-                                Swal.fire({
-                                    toast: true,
-                                    icon: 'success',
-                                    title: response.message,
-                                    position: 'top-end',
-                                    showConfirmButton: false,
-                                    timer: 3000
-                                });
+                                Swal.fire('Deleted!', response.message, 'success').then(() => location.reload());
                             } else {
                                 Swal.fire('Error', response.message, 'error');
                             }
@@ -819,128 +755,19 @@ require_once __DIR__ . '/../app/db.php';
                 }
             });
         });
-
-        // Toggle status (server toggles using only id)
-        $('.btn-status-toggle').click(function() {
-            const id = $(this).data('id');
-            $.ajax({
-                url: 'inc/action_works.php',
-                method: 'POST',
-                data: {
-                    action: 'toggle_status',
-                    id: id
-                },
-                dataType: 'json',
-                success: function(response) {
-                    if (response.status === 'success') {
-                        const icon = $('#row-' + id + ' .btn-status-toggle i');
-                        const label = $('#status-label-' + id);
-
-                        if (response.new_status === 1 || response.new_status === '1') {
-                            icon.removeClass('fa-toggle-off').addClass('fa-toggle-on');
-                            label.removeClass('bg-secondary').addClass('bg-success').text('Active');
-                        } else {
-                            icon.removeClass('fa-toggle-on').addClass('fa-toggle-off');
-                            label.removeClass('bg-success').addClass('bg-secondary').text('Inactive');
-                        }
-
-                        Swal.fire({
-                            toast: true,
-                            icon: 'success',
-                            title: response.message,
-                            position: 'top-end',
-                            showConfirmButton: false,
-                            timer: 3000
-                        });
-                    } else {
-                        Swal.fire('Error', response.message, 'error');
-                    }
-                },
-                error: function() {
-                    Swal.fire('Error', 'AJAX request failed', 'error');
-                }
-            });
-        });
     });
-
-    // Avatar dropdown + profile photo actions (same as slider.php)
-    function toggleProfileDropdown() {
-        document.getElementById('profileDropdown').classList.toggle('show');
-    }
-    document.addEventListener('click', function(e) {
-        const avatar = document.getElementById('userAvatar');
-        const dropdown = document.getElementById('profileDropdown');
-        if (avatar && dropdown && !avatar.contains(e.target)) {
-            dropdown.classList.remove('show');
-        }
-    });
-
-    function showNotification(message, type) {
-        document.querySelectorAll('.notification').forEach(n => n.remove());
-        const n = document.createElement('div');
-        n.className = `notification ${type}`;
-        n.textContent = message;
-        document.body.appendChild(n);
-        setTimeout(() => n.classList.add('show'), 100);
-        setTimeout(() => {
-            n.classList.remove('show');
-            setTimeout(() => n.remove(), 300);
-        }, 3000);
-    }
-
-    function uploadProfilePhoto(input) {
-        if (input.files && input.files[0]) {
-            const formData = new FormData();
-            formData.append('photo', input.files[0]);
-            formData.append('action', 'upload_profile_photo');
-            showNotification('Uploading photo...', 'info');
-            $.ajax({
-                url: 'profile_action.php',
-                type: 'POST',
-                data: formData,
-                contentType: false,
-                processData: false,
-                dataType: 'json',
-                success: function(res) {
-                    if (res.status === 'success') {
-                        showNotification('Profile photo updated!', 'success');
-                        setTimeout(() => location.reload(), 1200);
-                    } else {
-                        showNotification(res.message || 'Failed to upload', 'error');
-                    }
-                },
-                error: function(_, __, err) {
-                    showNotification('Upload failed: ' + err, 'error');
-                }
-            });
-        }
-    }
-
-    function removeProfilePhoto() {
-        if (confirm('Remove your profile photo?')) {
-            $.ajax({
-                url: 'profile_action.php',
-                type: 'POST',
-                data: {
-                    action: 'remove_profile_photo'
-                },
-                dataType: 'json',
-                success: function(res) {
-                    if (res.status === 'success') {
-                        showNotification('Profile photo removed!', 'success');
-                        setTimeout(() => location.reload(), 1200);
-                    } else {
-                        showNotification(res.message || 'Failed to remove', 'error');
-                    }
-                },
-                error: function(_, __, err) {
-                    showNotification('Remove failed: ' + err, 'error');
-                }
-            });
-        }
-    }
 
     function logout() {
-        if (confirm('Are you sure you want to logout?')) window.location.href = 'logout.php';
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You will be logged out!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, logout!',
+        }).then(result => {
+            if (result.isConfirmed) {
+                window.location.href = 'logout.php';
+            }
+        });
     }
 </script>

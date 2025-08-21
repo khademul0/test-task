@@ -21,37 +21,61 @@ $recent_logs = $conn->query("SELECT al.*, u.name FROM activity_logs al JOIN user
 ?>
 
 <style>
-    /* Modern Dashboard Styles */
+    /* Updated color scheme to match login page glassy design */
     :root {
-        --primary-color: #4f46e5;
-        --secondary-color: #f8fafc;
-        --accent-color: #06b6d4;
+        /* Professional glassy color palette matching login.php */
+        --primary-color: #164e63;
+        --primary-dark: #0f3a47;
+        --secondary-color: #ec4899;
+        --accent-color: #f59e0b;
         --success-color: #10b981;
+        --danger-color: #dc2626;
         --warning-color: #f59e0b;
-        --danger-color: #ef4444;
-        --dark-color: #1e293b;
-        --light-color: #ffffff;
+        --light-bg: rgba(255, 255, 255, 0.8);
+        --dark-bg: rgba(15, 23, 42, 0.9);
+        --card-bg: rgba(255, 255, 255, 0.2);
+        --glass-bg: rgba(255, 255, 255, 0.15);
+        --glass-border: rgba(255, 255, 255, 0.25);
+        --text-primary: #164e63;
+        --text-secondary: #475569;
+        --border-color: rgba(0, 0, 0, 0.1);
+        --shadow: 0 25px 50px rgba(22, 78, 99, 0.15);
+        --shadow-lg: 0 35px 70px rgba(22, 78, 99, 0.2);
+        --glow: 0 0 30px rgba(22, 78, 99, 0.3);
+        --glass-gradient: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%);
         --sidebar-width: 280px;
         --sidebar-collapsed-width: 80px;
+        --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    /* Updated body background to match login page gradient */
     body {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+        background: linear-gradient(135deg, #ecfeff 0%, #cffafe 25%, #a5f3fc 50%, #67e8f9 75%, #22d3ee 100%);
         min-height: 100vh;
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        position: relative;
+        overflow-x: hidden;
     }
 
-    /* Sidebar Styles */
+    /* Enhanced sidebar with darker glassy design */
     .sidebar {
         position: fixed;
         top: 0;
         left: 0;
         height: 100vh;
         width: var(--sidebar-width);
-        background: linear-gradient(180deg, var(--dark-color) 0%, #334155 100%);
-        transition: all 0.3s ease;
+        backdrop-filter: blur(30px);
+        background: rgba(15, 23, 42, 0.95);
+        border-right: 2px solid rgba(255, 255, 255, 0.15);
+        transition: var(--transition);
         z-index: 1000;
-        box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+        box-shadow: 4px 0 30px rgba(0, 0, 0, 0.2);
     }
 
     .sidebar.collapsed {
@@ -64,19 +88,21 @@ $recent_logs = $conn->query("SELECT al.*, u.name FROM activity_logs al JOIN user
         display: flex;
         align-items: center;
         gap: 1rem;
+        background: rgba(255, 255, 255, 0.05);
     }
 
     .sidebar-logo {
         width: 40px;
         height: 40px;
-        background: var(--primary-color);
-        border-radius: 10px;
+        background: linear-gradient(135deg, var(--secondary-color), var(--accent-color));
+        border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
         color: white;
         font-size: 1.2rem;
         font-weight: bold;
+        box-shadow: 0 4px 15px rgba(236, 72, 153, 0.3);
     }
 
     .sidebar-title {
@@ -85,6 +111,7 @@ $recent_logs = $conn->query("SELECT al.*, u.name FROM activity_logs al JOIN user
         font-weight: 600;
         margin: 0;
         transition: opacity 0.3s ease;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
     }
 
     .sidebar.collapsed .sidebar-title {
@@ -99,6 +126,7 @@ $recent_logs = $conn->query("SELECT al.*, u.name FROM activity_logs al JOIN user
         margin: 0.25rem 1rem;
     }
 
+    /* Enhanced nav links with glassy effect */
     .nav-link {
         display: flex;
         align-items: center;
@@ -106,16 +134,19 @@ $recent_logs = $conn->query("SELECT al.*, u.name FROM activity_logs al JOIN user
         padding: 0.75rem 1rem;
         color: rgba(255, 255, 255, 0.8);
         text-decoration: none;
-        border-radius: 10px;
-        transition: all 0.3s ease;
+        border-radius: 12px;
+        transition: var(--transition);
         position: relative;
+        backdrop-filter: blur(10px);
+        cursor: pointer;
     }
 
     .nav-link:hover,
     .nav-link.active {
-        background: rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.15);
         color: white;
         transform: translateX(5px);
+        box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
     }
 
     .nav-link i {
@@ -139,32 +170,39 @@ $recent_logs = $conn->query("SELECT al.*, u.name FROM activity_logs al JOIN user
         margin-left: var(--sidebar-collapsed-width);
     }
 
+    /* Enhanced top bar with dark blue glassy design */
     .top-bar {
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(10px);
+        backdrop-filter: blur(30px);
+        background: rgba(30, 58, 138, 0.9);
+        border: 1px solid rgba(255, 255, 255, 0.2);
         padding: 1rem 2rem;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 8px 32px rgba(30, 58, 138, 0.3);
         position: sticky;
         top: 0;
         z-index: 100;
+        border-radius: 0 0 20px 20px;
+        margin: 0 1rem;
     }
 
     .sidebar-toggle {
-        background: none;
-        border: none;
+        background: rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.3);
         font-size: 1.2rem;
-        color: var(--dark-color);
+        color: white;
         cursor: pointer;
         padding: 0.5rem;
-        border-radius: 8px;
-        transition: background 0.3s ease;
+        border-radius: 10px;
+        transition: var(--transition);
+        backdrop-filter: blur(10px);
     }
 
     .sidebar-toggle:hover {
-        background: rgba(0, 0, 0, 0.1);
+        background: rgba(255, 255, 255, 0.3);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
     }
 
     .user-info {
@@ -174,11 +212,12 @@ $recent_logs = $conn->query("SELECT al.*, u.name FROM activity_logs al JOIN user
         position: relative;
     }
 
+    /* Enhanced user avatar with glassy styling */
     .user-avatar {
         width: 50px;
         height: 50px;
         border-radius: 50%;
-        background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
         display: flex;
         align-items: center;
         justify-content: center;
@@ -188,14 +227,14 @@ $recent_logs = $conn->query("SELECT al.*, u.name FROM activity_logs al JOIN user
         cursor: pointer;
         position: relative;
         overflow: hidden;
-        transition: all 0.3s ease;
-        border: 3px solid white;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        transition: var(--transition);
+        border: 3px solid rgba(255, 255, 255, 0.5);
+        box-shadow: 0 8px 25px rgba(22, 78, 99, 0.2);
     }
 
     .user-avatar:hover {
         transform: scale(1.05);
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        box-shadow: 0 12px 35px rgba(22, 78, 99, 0.3);
     }
 
     .user-avatar img {
@@ -225,21 +264,23 @@ $recent_logs = $conn->query("SELECT al.*, u.name FROM activity_logs al JOIN user
         opacity: 1;
     }
 
+    /* Enhanced profile dropdown with glassy design */
     .profile-dropdown {
         position: absolute;
         top: 100%;
         right: 0;
-        background: white;
-        border-radius: 12px;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+        backdrop-filter: blur(25px);
+        background: rgba(255, 255, 255, 0.25);
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        border-radius: 16px;
+        box-shadow: var(--shadow-lg);
         padding: 0.5rem 0;
         min-width: 200px;
         opacity: 0;
         visibility: hidden;
         transform: translateY(-10px);
-        transition: all 0.3s ease;
+        transition: var(--transition);
         z-index: 1000;
-        border: 1px solid #e2e8f0;
     }
 
     .profile-dropdown.show {
@@ -254,97 +295,71 @@ $recent_logs = $conn->query("SELECT al.*, u.name FROM activity_logs al JOIN user
         gap: 0.75rem;
         padding: 0.75rem 1rem;
         cursor: pointer;
-        transition: background 0.2s ease;
-        color: var(--dark-color);
+        transition: var(--transition);
+        color: var(--text-primary);
         font-size: 0.9rem;
+        font-weight: 500;
     }
 
     .profile-dropdown-item:hover {
-        background: #f8fafc;
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateX(5px);
     }
 
     .profile-dropdown-item i {
         width: 16px;
-        color: #64748b;
+        color: var(--text-secondary);
     }
 
     #profilePhotoInput {
         display: none;
     }
 
-    /* Enhanced notification styles */
-    .notification {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 1rem 1.5rem;
-        border-radius: 12px;
-        color: white;
-        font-weight: 500;
-        z-index: 10000;
-        transform: translateX(400px);
-        transition: transform 0.3s ease;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    }
-
-    .notification.show {
-        transform: translateX(0);
-    }
-
-    .notification.success {
-        background: linear-gradient(135deg, var(--success-color), #34d399);
-    }
-
-    .notification.error {
-        background: linear-gradient(135deg, var(--danger-color), #f87171);
-    }
-
-    /* Dashboard Content */
+    /* Dashboard content with glassy cards */
     .dashboard-content {
         padding: 2rem;
     }
 
     .welcome-section {
-        background: linear-gradient(135deg, var(--light-color) 0%, #f1f5f9 100%);
-        border-radius: 20px;
-        padding: 2rem;
         margin-bottom: 2rem;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        text-align: center;
     }
 
     .welcome-title {
-        color: var(--dark-color);
-        font-size: 2rem;
+        font-family: 'Work Sans', sans-serif;
         font-weight: 700;
+        font-size: 2.5rem;
+        color: var(--text-primary);
         margin-bottom: 0.5rem;
-        display: flex;
-        align-items: center;
-        gap: 1rem;
+        text-shadow: 0 2px 4px rgba(22, 78, 99, 0.1);
     }
 
     .welcome-subtitle {
-        color: #64748b;
+        color: var(--text-secondary);
         font-size: 1.1rem;
-        margin: 0;
+        opacity: 0.8;
     }
 
-    /* Statistics Cards */
+    /* Reduced stats grid card sizes to make them cuter */
     .stats-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 1.5rem;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.2rem;
         margin-bottom: 2rem;
     }
 
     .stat-card {
-        background: var(--light-color);
+        backdrop-filter: blur(25px);
+        background: rgba(255, 255, 255, 0.25);
+        border: 1px solid rgba(255, 255, 255, 0.25);
         border-radius: 20px;
-        padding: 2rem;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-        transition: all 0.3s ease;
+        padding: 1.5rem;
+        text-align: center;
+        transition: var(--transition);
         cursor: pointer;
         position: relative;
         overflow: hidden;
+        box-shadow: var(--shadow);
     }
 
     .stat-card::before {
@@ -353,45 +368,45 @@ $recent_logs = $conn->query("SELECT al.*, u.name FROM activity_logs al JOIN user
         top: 0;
         left: 0;
         right: 0;
-        height: 4px;
-        background: var(--gradient);
-    }
-
-    .stat-card.primary::before {
-        background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
-    }
-
-    .stat-card.success::before {
-        background: linear-gradient(90deg, var(--success-color), #34d399);
-    }
-
-    .stat-card.info::before {
-        background: linear-gradient(90deg, var(--accent-color), #0ea5e9);
-    }
-
-    .stat-card.warning::before {
-        background: linear-gradient(90deg, var(--warning-color), #fbbf24);
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
     }
 
     .stat-card:hover {
-        transform: translateY(-10px);
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-lg);
+        background: rgba(255, 255, 255, 0.3);
     }
 
+    .stat-card.primary {
+        border-left: 4px solid var(--primary-color);
+    }
+
+    .stat-card.success {
+        border-left: 4px solid var(--success-color);
+    }
+
+    .stat-card.info {
+        border-left: 4px solid var(--accent-color);
+    }
+
+    .stat-card.warning {
+        border-left: 4px solid var(--warning-color);
+    }
+
+    /* Reduced stat icon size for cuter appearance */
     .stat-icon {
-        width: 60px;
-        height: 60px;
-        border-radius: 15px;
+        width: 50px;
+        height: 50px;
+        margin: 0 auto 1rem;
+        border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.5rem;
+        font-size: 1.3rem;
         color: white;
-        margin-bottom: 1rem;
-    }
-
-    .stat-card.primary .stat-icon {
-        background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        box-shadow: 0 8px 25px rgba(22, 78, 99, 0.2);
     }
 
     .stat-card.success .stat-icon {
@@ -399,143 +414,296 @@ $recent_logs = $conn->query("SELECT al.*, u.name FROM activity_logs al JOIN user
     }
 
     .stat-card.info .stat-icon {
-        background: linear-gradient(135deg, var(--accent-color), #0ea5e9);
+        background: linear-gradient(135deg, var(--accent-color), #fbbf24);
     }
 
     .stat-card.warning .stat-icon {
-        background: linear-gradient(135deg, var(--warning-color), #fbbf24);
+        background: linear-gradient(135deg, var(--warning-color), #f97316);
     }
 
     .stat-title {
-        color: #64748b;
-        font-size: 0.9rem;
-        font-weight: 500;
+        font-size: 0.85rem;
+        color: var(--text-secondary);
         margin-bottom: 0.5rem;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
+        font-weight: 500;
     }
 
+    /* Reduced stat value font size for cuter cards */
     .stat-value {
-        color: var(--dark-color);
-        font-size: 2.5rem;
+        font-size: 2rem;
         font-weight: 700;
-        margin: 0;
+        color: var(--text-primary);
+        font-family: 'Work Sans', sans-serif;
     }
 
-    /* Content Cards */
+    /* Content cards with glassy design */
     .content-card {
-        background: var(--light-color);
+        backdrop-filter: blur(25px);
+        background: rgba(255, 255, 255, 0.25);
+        border: 1px solid rgba(255, 255, 255, 0.25);
         border-radius: 20px;
-        padding: 2rem;
         margin-bottom: 2rem;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-        transition: all 0.3s ease;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+        position: relative;
     }
 
-    .content-card:hover {
-        box-shadow: 0 15px 50px rgba(0, 0, 0, 0.15);
+    .content-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
     }
 
     .card-header {
+        padding: 1.5rem 2rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 1.5rem;
-        padding-bottom: 1rem;
-        border-bottom: 2px solid #f1f5f9;
+        background: rgba(255, 255, 255, 0.1);
     }
 
     .card-title {
-        color: var(--dark-color);
-        font-size: 1.5rem;
+        font-family: 'Work Sans', sans-serif;
         font-weight: 600;
+        color: var(--text-primary);
         margin: 0;
         display: flex;
         align-items: center;
-        gap: 0.75rem;
+        gap: 0.5rem;
     }
 
-    .card-title i {
-        color: var(--primary-color);
-    }
-
-    /* Table Styles */
     .table-container {
-        border-radius: 15px;
-        overflow: hidden;
-        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        overflow-x: auto;
     }
 
+    /* Enhanced table styling with glassy design */
     .table {
+        width: 100%;
+        border-collapse: collapse;
         margin: 0;
-        border: none;
     }
 
-    .table thead th {
-        background: linear-gradient(135deg, var(--dark-color), #334155);
-        color: white;
-        border: none;
-        padding: 1rem;
+    .table th {
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--text-primary);
         font-weight: 600;
-        text-transform: uppercase;
-        font-size: 0.85rem;
-        letter-spacing: 0.5px;
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        font-size: 0.9rem;
     }
 
-    .table tbody td {
+    .table td {
         padding: 1rem;
-        border-color: #f1f5f9;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        color: var(--text-secondary);
         vertical-align: middle;
     }
 
-    .table tbody tr:hover {
-        background: #f8fafc;
-        transform: scale(1.01);
-        transition: all 0.2s ease;
+    .table tbody tr {
+        transition: all 0.3s ease;
     }
 
-    /* Buttons */
+    .table tbody tr:hover {
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    /* Enhanced buttons with glassy styling */
     .btn {
+        padding: 0.5rem 1rem;
+        border: none;
         border-radius: 10px;
         font-weight: 500;
-        padding: 0.5rem 1rem;
-        transition: all 0.3s ease;
-        border: none;
-    }
-
-    .btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: pointer;
+        backdrop-filter: blur(10px);
+        font-size: 0.875rem;
     }
 
     .btn-primary {
-        background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        color: white;
+        box-shadow: 0 4px 15px rgba(22, 78, 99, 0.3);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(22, 78, 99, 0.4);
     }
 
     .btn-success {
         background: linear-gradient(135deg, var(--success-color), #34d399);
+        color: white;
+        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-success:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+    }
+
+    .btn-secondary {
+        background: rgba(255, 255, 255, 0.2);
+        color: var(--text-secondary);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: translateY(-1px);
+    }
+
+    .btn-info {
+        background: linear-gradient(135deg, var(--accent-color), #fbbf24);
+        color: white;
+        box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+    }
+
+    .btn-info:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4);
     }
 
     .btn-warning {
-        background: linear-gradient(135deg, var(--warning-color), #fbbf24);
+        background: linear-gradient(135deg, var(--warning-color), #f97316);
+        color: white;
+        box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+    }
+
+    .btn-warning:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4);
     }
 
     .btn-danger {
         background: linear-gradient(135deg, var(--danger-color), #f87171);
+        color: white;
+        box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3);
     }
 
-    .btn-info {
-        background: linear-gradient(135deg, var(--accent-color), #0ea5e9);
+    .btn-danger:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(220, 38, 38, 0.4);
     }
 
-    /* Badges */
+    .btn-sm {
+        padding: 0.375rem 0.75rem;
+        font-size: 0.8rem;
+    }
+
     .badge {
-        border-radius: 8px;
+        padding: 0.375rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
         font-weight: 500;
-        padding: 0.5rem 0.75rem;
+        backdrop-filter: blur(10px);
     }
 
-    /* Responsive */
+    .bg-success {
+        background: linear-gradient(135deg, var(--success-color), #34d399);
+        color: white;
+    }
+
+    .bg-secondary {
+        background: rgba(255, 255, 255, 0.2);
+        color: var(--text-secondary);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .img-thumbnail {
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Enhanced notification styles */
+    .notification {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 1rem 1.5rem;
+        border-radius: 16px;
+        color: white;
+        font-weight: 500;
+        z-index: 10000;
+        transform: translateX(400px);
+        transition: transform 0.3s ease;
+        backdrop-filter: blur(25px);
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .notification.show {
+        transform: translateX(0);
+    }
+
+    .notification.success {
+        background: rgba(16, 185, 129, 0.9);
+    }
+
+    .notification.error {
+        background: rgba(220, 38, 38, 0.9);
+    }
+
+    .notification.info {
+        background: rgba(22, 78, 99, 0.9);
+    }
+
+    /* Enhanced loader overlay */
+    .loader-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(10px);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+    }
+
+    .loader {
+        width: 50px;
+        height: 50px;
+        border: 4px solid rgba(22, 78, 99, 0.2);
+        border-top: 4px solid var(--primary-color);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+    /* Enhanced animations */
+    .fade-in-up {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: all 0.6s ease;
+    }
+
+    .fade-in-up.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    /* Responsive design */
     @media (max-width: 768px) {
         .sidebar {
             transform: translateX(-100%);
@@ -549,63 +717,34 @@ $recent_logs = $conn->query("SELECT al.*, u.name FROM activity_logs al JOIN user
             margin-left: 0;
         }
 
-        .stats-grid {
-            grid-template-columns: 1fr;
+        .top-bar {
+            margin: 0;
+            border-radius: 0;
         }
 
         .dashboard-content {
             padding: 1rem;
         }
-    }
 
-    /* Animations */
-    @keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(30px);
+        .stats-grid {
+            grid-template-columns: 1fr;
         }
 
-        to {
-            opacity: 1;
-            transform: translateY(0);
+        .welcome-title {
+            font-size: 2rem;
         }
     }
 
-    .fade-in-up {
-        animation: fadeInUp 0.6s ease forwards;
+    .d-none {
+        display: none !important;
     }
 
-    /* Loader */
-    .loader-overlay {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.5);
-        z-index: 9999;
-        justify-content: center;
-        align-items: center;
+    .text-center {
+        text-align: center;
     }
 
-    .loader {
-        border: 4px solid #f3f3f3;
-        border-top: 4px solid var(--primary-color);
-        border-radius: 50%;
-        width: 40px;
-        height: 40px;
-        animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-        0% {
-            transform: rotate(0deg);
-        }
-
-        100% {
-            transform: rotate(360deg);
-        }
+    .me-1 {
+        margin-right: 0.25rem;
     }
 </style>
 
@@ -1281,3 +1420,6 @@ $recent_logs = $conn->query("SELECT al.*, u.name FROM activity_logs al JOIN user
         observer.observe(el);
     });
 </script>
+</body>
+
+</html>
