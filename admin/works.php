@@ -479,6 +479,132 @@ require_once '../app/db.php';
             padding: 1rem;
         }
     }
+
+    /* Added inventory management styles */
+    .inventory-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        backdrop-filter: blur(25px);
+        background: rgba(255, 255, 255, 0.25);
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        border-radius: 16px;
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: var(--shadow);
+    }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+
+    .editable-field {
+        cursor: pointer;
+        padding: 0.25rem 0.5rem;
+        border-radius: 6px;
+        transition: var(--transition);
+        min-width: 60px;
+        display: inline-block;
+    }
+
+    .editable-field:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: scale(1.05);
+    }
+
+    .editing {
+        background: rgba(255, 255, 255, 0.3);
+        border: 2px solid var(--primary-color);
+    }
+
+    .star-rating {
+        display: inline-flex;
+        gap: 2px;
+    }
+
+    .star {
+        color: #ddd;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: color 0.2s;
+    }
+
+    .star.filled {
+        color: #ffc107;
+    }
+
+    .star:hover {
+        color: #ffc107;
+    }
+
+    .bulk-actions {
+        margin-bottom: 1rem;
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .inventory-modal .modal-body {
+        max-height: 60vh;
+        overflow-y: auto;
+    }
+
+    .inventory-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        margin-bottom: 1rem;
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .inventory-item img {
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+
+    .inventory-item-info {
+        flex: 1;
+    }
+
+    .inventory-item-controls {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .inventory-input {
+        width: 80px;
+        padding: 0.5rem;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 6px;
+        background: rgba(255, 255, 255, 0.2);
+        color: var(--text-primary);
+        text-align: center;
+    }
+
+    .inventory-input:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        background: rgba(255, 255, 255, 0.3);
+    }
 </style>
 
 <!-- Sidebar -->
@@ -599,6 +725,34 @@ require_once '../app/db.php';
 
     <!-- Dashboard Content -->
     <div class="dashboard-content">
+        <!-- Added inventory statistics dashboard -->
+        <div class="inventory-stats">
+            <?php
+            $stats = $conn->query("SELECT 
+                COUNT(*) as total_works,
+                SUM(price * stock) as total_value,
+                SUM(stock) as total_stock,
+                AVG(rating) as avg_rating
+                FROM works")->fetch_assoc();
+            ?>
+            <div class="stat-card">
+                <div class="stat-value"><?= number_format($stats['total_works']) ?></div>
+                <div class="stat-label">Total Works</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">$<?= number_format($stats['total_value'], 2) ?></div>
+                <div class="stat-label">Inventory Value</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value"><?= number_format($stats['total_stock']) ?></div>
+                <div class="stat-label">Total Stock</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value"><?= number_format($stats['avg_rating'], 1) ?></div>
+                <div class="stat-label">Avg Rating</div>
+            </div>
+        </div>
+
         <!-- Works Content Card -->
         <div class="content-card">
             <div class="card-header">
@@ -606,10 +760,16 @@ require_once '../app/db.php';
                     <i class="fas fa-paint-brush"></i>
                     All Works
                 </h4>
-                <a href="create_works.php" class="btn btn-primary">
-                    <i class="fas fa-plus"></i>
-                    Add New
-                </a>
+                <div class="bulk-actions">
+                    <button class="btn btn-secondary" onclick="openBulkInventoryModal()">
+                        <i class="fas fa-boxes"></i>
+                        Bulk Inventory
+                    </button>
+                    <a href="create_works.php" class="btn btn-primary">
+                        <i class="fas fa-plus"></i>
+                        Add New
+                    </a>
+                </div>
             </div>
 
             <div class="table-container">
@@ -621,6 +781,10 @@ require_once '../app/db.php';
                             <th>Title</th>
                             <th>Description</th>
                             <th>Link</th>
+                            <!-- Added inventory columns -->
+                            <th>Price</th>
+                            <th>Stock</th>
+                            <th>Rating</th>
                             <th>Status</th>
                             <th>Created</th>
                             <th>Actions</th>
@@ -650,6 +814,24 @@ require_once '../app/db.php';
                                         <span class="text-muted">-</span>
                                     <?php endif; ?>
                                 </td>
+                                <!-- Added editable inventory fields -->
+                                <td>
+                                    <span class="editable-field" data-id="<?= $work['id'] ?>" data-field="price" data-value="<?= $work['price'] ?>">
+                                        $<?= number_format($work['price'], 2) ?>
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="editable-field" data-id="<?= $work['id'] ?>" data-field="stock" data-value="<?= $work['stock'] ?>">
+                                        <?= $work['stock'] ?>
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="star-rating" data-id="<?= $work['id'] ?>" data-rating="<?= $work['rating'] ?>">
+                                        <?php for ($s = 1; $s <= 5; $s++): ?>
+                                            <span class="star <?= $s <= $work['rating'] ? 'filled' : '' ?>" data-rating="<?= $s ?>">★</span>
+                                        <?php endfor; ?>
+                                    </div>
+                                </td>
                                 <td>
                                     <button class="btn btn-sm toggle-status <?= $work['status'] ? 'btn-success' : 'btn-secondary' ?>" data-id="<?= $work['id'] ?>" data-status="<?= $work['status'] ?>">
                                         <?= $work['status'] ? '<i class="fas fa-toggle-on"></i>' : '<i class="fas fa-toggle-off"></i>' ?>
@@ -669,6 +851,27 @@ require_once '../app/db.php';
     </div>
 </div>
 
+<!-- Added Bulk Inventory Management Modal -->
+<div class="modal fade" id="bulkInventoryModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" style="backdrop-filter: blur(25px); background: rgba(255, 255, 255, 0.9); border: 1px solid rgba(255, 255, 255, 0.3);">
+            <div class="modal-header">
+                <h5 class="modal-title">Bulk Inventory Management</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="bulkInventoryItems">
+                    <!-- Items will be loaded here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="saveBulkInventory()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <?php require_once 'inc/footer.php'; ?>
 
 <script>
@@ -682,24 +885,157 @@ require_once '../app/db.php';
             $('#mainContent').toggleClass('expanded');
         });
 
+        $('.editable-field').click(function() {
+            let $this = $(this);
+            let id = $this.data('id');
+            let field = $this.data('field');
+            let currentValue = $this.data('value');
+
+            if ($this.hasClass('editing')) return;
+
+            $this.addClass('editing');
+            let input = $('<input type="number" class="form-control" style="width: 80px; display: inline-block;">');
+            input.val(currentValue);
+
+            if (field === 'price') {
+                input.attr('step', '0.01').attr('min', '0');
+            } else if (field === 'stock') {
+                input.attr('min', '0');
+            }
+
+            $this.html(input);
+            input.focus().select();
+
+            function saveValue() {
+                let newValue = input.val();
+                if (newValue === '' || newValue < 0) {
+                    Swal.fire('Error', 'Please enter a valid value', 'error');
+                    return;
+                }
+
+                if (field === 'rating' && (newValue < 0 || newValue > 5)) {
+                    Swal.fire('Error', 'Rating must be between 0 and 5', 'error');
+                    return;
+                }
+
+                $.ajax({
+                    url: 'inc/action_works.php',
+                    method: 'POST',
+                    data: {
+                        action: 'update_inventory',
+                        id: id,
+                        field: field,
+                        value: newValue
+                    },
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            $this.removeClass('editing');
+                            $this.data('value', newValue);
+
+                            if (field === 'price') {
+                                $this.html('$' + parseFloat(newValue).toFixed(2));
+                            } else {
+                                $this.html(newValue);
+                            }
+
+                            Swal.fire({
+                                toast: true,
+                                icon: 'success',
+                                title: response.message,
+                                position: 'top-end',
+                                showConfirmButton: false,
+                                timer: 2000
+                            });
+
+                            // Refresh stats
+                            location.reload();
+                        } else {
+                            Swal.fire('Error', response.message, 'error');
+                            $this.removeClass('editing');
+                            if (field === 'price') {
+                                $this.html('$' + parseFloat(currentValue).toFixed(2));
+                            } else {
+                                $this.html(currentValue);
+                            }
+                        }
+                    },
+                    error: function() {
+                        Swal.fire('Error', 'Failed to update ' + field, 'error');
+                        $this.removeClass('editing');
+                        if (field === 'price') {
+                            $this.html('$' + parseFloat(currentValue).toFixed(2));
+                        } else {
+                            $this.html(currentValue);
+                        }
+                    }
+                });
+            }
+
+            input.on('blur', saveValue);
+            input.on('keypress', function(e) {
+                if (e.which === 13) {
+                    saveValue();
+                }
+            });
+        });
+
+        $('.star-rating .star').click(function() {
+            let $rating = $(this).closest('.star-rating');
+            let id = $rating.data('id');
+            let rating = $(this).data('rating');
+
+            $.ajax({
+                url: 'inc/action_works.php',
+                method: 'POST',
+                data: {
+                    action: 'update_inventory',
+                    id: id,
+                    field: 'rating',
+                    value: rating
+                },
+                dataType: 'json',
+                success: function(response) {
+                    if (response.status === 'success') {
+                        $rating.data('rating', rating);
+                        $rating.find('.star').each(function(index) {
+                            $(this).toggleClass('filled', index < rating);
+                        });
+
+                        Swal.fire({
+                            toast: true,
+                            icon: 'success',
+                            title: 'Rating updated successfully',
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 2000
+                        });
+                    } else {
+                        Swal.fire('Error', response.message, 'error');
+                    }
+                },
+                error: function() {
+                    Swal.fire('Error', 'Failed to update rating', 'error');
+                }
+            });
+        });
+
         // Toggle status button click handler
         $('.toggle-status').click(function() {
             let button = $(this);
             let id = button.data('id');
-            let currentStatus = button.data('status') === 1 || button.data('status') === '1' ? 1 : 0;
 
             $.ajax({
                 url: 'inc/action_works.php',
                 method: 'POST',
                 data: {
                     action: 'toggle_status',
-                    id: id,
-                    status: currentStatus
+                    id: id
                 },
                 dataType: 'json',
                 success: function(response) {
                     if (response.status === 'success') {
-                        let newStatus = currentStatus === 1 ? 0 : 1;
+                        let newStatus = response.new_status;
                         button.data('status', newStatus);
                         button.toggleClass('btn-success btn-secondary');
                         button.html(newStatus === 1 ? '<i class="fas fa-toggle-on"></i>' : '<i class="fas fa-toggle-off"></i>');
@@ -716,8 +1052,10 @@ require_once '../app/db.php';
                         Swal.fire('Error', response.message, 'error');
                     }
                 },
-                error: function() {
-                    Swal.fire('Error', 'AJAX request failed', 'error');
+                error: function(xhr, status, error) {
+                    console.log('[v0] Toggle status AJAX error:', error);
+                    console.log('[v0] Response text:', xhr.responseText);
+                    Swal.fire('Error', 'Failed to toggle status. Please try again.', 'error');
                 }
             });
         });
@@ -725,14 +1063,18 @@ require_once '../app/db.php';
         // Delete button click handler
         $('.delete-work').click(function() {
             let id = $(this).data('id');
+            console.log('[v0] Delete button clicked for ID:', id);
+
             Swal.fire({
                 title: 'Are you sure?',
                 text: "This work will be permanently deleted!",
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonText: 'Yes, delete it!',
+                cancelButtonText: 'Cancel'
             }).then(result => {
                 if (result.isConfirmed) {
+                    console.log('[v0] Delete confirmed, sending AJAX request');
                     $.ajax({
                         url: 'inc/action_works.php',
                         method: 'POST',
@@ -742,20 +1084,114 @@ require_once '../app/db.php';
                         },
                         dataType: 'json',
                         success: function(response) {
+                            console.log('[v0] Delete response:', response);
                             if (response.status === 'success') {
-                                Swal.fire('Deleted!', response.message, 'success').then(() => location.reload());
+                                Swal.fire('Deleted!', response.message, 'success').then(() => {
+                                    location.reload();
+                                });
                             } else {
                                 Swal.fire('Error', response.message, 'error');
                             }
                         },
-                        error: function() {
-                            Swal.fire('Error', 'AJAX request failed', 'error');
+                        error: function(xhr, status, error) {
+                            console.log('[v0] Delete AJAX error:', error);
+                            console.log('[v0] Response text:', xhr.responseText);
+                            Swal.fire('Error', 'Failed to delete work. Please try again.', 'error');
                         }
                     });
                 }
             });
         });
     });
+
+    function openBulkInventoryModal() {
+        $.ajax({
+            url: 'inc/action_works.php',
+            method: 'POST',
+            data: {
+                action: 'get_all_works'
+            },
+            success: function(works) {
+                let html = '';
+                <?php
+                $works = $conn->query("SELECT * FROM works ORDER BY title");
+                while ($work = $works->fetch_assoc()):
+                ?>
+                    html += `
+                    <div class="inventory-item" data-id="<?= $work['id'] ?>">
+                        <?php if (!empty($work['image']) && file_exists("../assets/img/works/" . $work['image'])): ?>
+                            <img src="../assets/img/works/<?= htmlspecialchars($work['image']) ?>" alt="<?= htmlspecialchars($work['title']) ?>">
+                        <?php else: ?>
+                            <div style="width: 50px; height: 50px; background: #ddd; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem;">No Image</div>
+                        <?php endif; ?>
+                        <div class="inventory-item-info">
+                            <strong><?= htmlspecialchars($work['title']) ?></strong>
+                        </div>
+                        <div class="inventory-item-controls">
+                            <div>
+                                <label>Price</label>
+                                <input type="number" class="inventory-input" name="price" value="<?= $work['price'] ?>" step="0.01" min="0">
+                            </div>
+                            <div>
+                                <label>Stock</label>
+                                <input type="number" class="inventory-input" name="stock" value="<?= $work['stock'] ?>" min="0">
+                            </div>
+                            <div>
+                                <label>Rating</label>
+                                <input type="number" class="inventory-input" name="rating" value="<?= $work['rating'] ?>" step="0.1" min="0" max="5">
+                            </div>
+                        </div>
+                    </div>
+                `;
+                <?php endwhile; ?>
+
+                $('#bulkInventoryItems').html(html);
+                $('#bulkInventoryModal').modal('show');
+            }
+        });
+    }
+
+    function saveBulkInventory() {
+        let updates = [];
+
+        $('.inventory-item').each(function() {
+            let $item = $(this);
+            let id = $item.data('id');
+            let price = parseFloat($item.find('input[name="price"]').val()) || 0;
+            let stock = parseInt($item.find('input[name="stock"]').val()) || 0;
+            let rating = parseFloat($item.find('input[name="rating"]').val()) || 0;
+
+            updates.push({
+                id: id,
+                price: price,
+                stock: stock,
+                rating: rating
+            });
+        });
+
+        $.ajax({
+            url: 'inc/action_works.php',
+            method: 'POST',
+            data: {
+                action: 'bulk_update_inventory',
+                updates: updates
+            },
+            dataType: 'json',
+            success: function(response) {
+                if (response.status === 'success') {
+                    $('#bulkInventoryModal').modal('hide');
+                    Swal.fire('Success', response.message, 'success').then(() => {
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire('Error', response.message, 'error');
+                }
+            },
+            error: function() {
+                Swal.fire('Error', 'Failed to update inventory', 'error');
+            }
+        });
+    }
 
     function logout() {
         Swal.fire({
@@ -767,6 +1203,73 @@ require_once '../app/db.php';
         }).then(result => {
             if (result.isConfirmed) {
                 window.location.href = 'logout.php';
+            }
+        });
+    }
+
+    function toggleProfileDropdown() {
+        $('#profileDropdown').toggleClass('show');
+    }
+
+    function uploadProfilePhoto(input) {
+        let formData = new FormData();
+        formData.append('profilePhoto', input.files[0]);
+
+        $.ajax({
+            url: 'inc/action_profile.php',
+            method: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                if (response.status === 'success') {
+                    $('#userAvatar').html('<img src="../assets/images/profiles/' + response.photo + '" alt="Profile Photo"><div class="profile-upload-overlay"><i class="fas fa-camera"></i></div>');
+                    Swal.fire({
+                        toast: true,
+                        icon: 'success',
+                        title: response.message,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 2000
+                    });
+                } else {
+                    Swal.fire('Error', response.message, 'error');
+                }
+            },
+            error: function(xhr, status, error) {
+                console.log('[v0] Upload profile photo AJAX error:', error);
+                console.log('[v0] Response text:', xhr.responseText);
+                Swal.fire('Error', 'Failed to upload profile photo. Please try again.', 'error');
+            }
+        });
+    }
+
+    function removeProfilePhoto() {
+        $.ajax({
+            url: 'inc/action_profile.php',
+            method: 'POST',
+            data: {
+                action: 'remove_photo'
+            },
+            success: function(response) {
+                if (response.status === 'success') {
+                    $('#userAvatar').html('<span>' + strtoupper(substr($_SESSION['user_name'] ?? 'A', 0, 1)) + '</span><div class="profile-upload-overlay"><i class="fas fa-camera"></i></div>');
+                    Swal.fire({
+                        toast: true,
+                        icon: 'success',
+                        title: response.message,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 2000
+                    });
+                } else {
+                    Swal.fire('Error', response.message, 'error');
+                }
+            },
+            error: function(xhr, status, error) {
+                console.log('[v0] Remove profile photo AJAX error:', error);
+                console.log('[v0] Response text:', xhr.responseText);
+                Swal.fire('Error', 'Failed to remove profile photo. Please try again.', 'error');
             }
         });
     }
