@@ -1,74 +1,282 @@
 <?php require_once 'inc/header.php'; ?>
 
-<div class="container py-4">
-    <h4><i class="fas fa-plus-circle me-2"></i>Add New Work</h4>
-    <form action="inc/action_works.php" method="POST" enctype="multipart/form-data" id="createWorkForm">
-        <input type="hidden" name="action" value="create_work">
+<style>
+    /* Added dashboard-matching glassy design system */
+    :root {
+        --primary-color: #164e63;
+        --primary-dark: #0f3a47;
+        --secondary-color: #ec4899;
+        --accent-color: #f59e0b;
+        --success-color: #10b981;
+        --danger-color: #dc2626;
+        --light-bg: rgba(255, 255, 255, 0.8);
+        --card-bg: rgba(255, 255, 255, 0.25);
+        --glass-bg: rgba(255, 255, 255, 0.15);
+        --text-primary: #164e63;
+        --text-secondary: #475569;
+        --shadow: 0 25px 50px rgba(22, 78, 99, 0.15);
+        --shadow-lg: 0 35px 70px rgba(22, 78, 99, 0.2);
+        --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
 
-        <div class="mb-3">
-            <label class="form-label">Title <span class="text-danger">*</span></label>
-            <input type="text" name="title" class="form-control" required>
-        </div>
+    body {
+        background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #f8fafc 100%);
+        min-height: 100vh;
+    }
 
-        <div class="mb-3">
-            <label class="form-label">Description <span class="text-danger">*</span></label>
-            <textarea name="description" rows="5" class="form-control" required></textarea>
-        </div>
+    .container {
+        max-width: 800px;
+    }
 
-        <div class="mb-3">
-            <label class="form-label">Link (optional)</label>
-            <input type="url" name="link" class="form-control" placeholder="https://example.com">
-        </div>
+    .page-header {
+        backdrop-filter: blur(25px);
+        background: var(--card-bg);
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: var(--shadow);
+        text-align: center;
+    }
 
-        <div class="mb-3">
-            <label class="form-label">Image <span class="text-danger">*</span></label>
-            <input type="file" name="image" class="form-control" accept="image/*" required>
-        </div>
+    .page-header h4 {
+        color: var(--text-primary);
+        font-weight: 600;
+        margin: 0;
+        font-size: 1.5rem;
+    }
 
-        <div class="mb-3 form-check">
-            <input type="checkbox" name="status" class="form-check-input" checked>
-            <label class="form-check-label">Active</label>
-        </div>
+    .form-container {
+        backdrop-filter: blur(25px);
+        background: var(--card-bg);
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        border-radius: 20px;
+        padding: 2.5rem;
+        box-shadow: var(--shadow);
+        position: relative;
+        overflow: hidden;
+    }
 
-        <button type="submit" class="btn btn-primary">Save Work</button>
-        <a href="works.php" class="btn btn-secondary">Cancel</a>
-    </form>
+    .form-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+    }
+
+    .form-label {
+        color: var(--text-primary);
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .form-control,
+    .form-select {
+        backdrop-filter: blur(10px);
+        background: rgba(255, 255, 255, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 12px;
+        padding: 0.75rem 1rem;
+        color: var(--text-primary);
+        transition: var(--transition);
+        font-size: 0.95rem;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(22, 78, 99, 0.1);
+        background: rgba(255, 255, 255, 0.4);
+    }
+
+    .form-control::placeholder {
+        color: var(--text-secondary);
+        opacity: 0.7;
+    }
+
+    .form-check {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1rem;
+        backdrop-filter: blur(10px);
+        background: rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        border-radius: 12px;
+        transition: var(--transition);
+    }
+
+    .form-check:hover {
+        background: rgba(255, 255, 255, 0.3);
+    }
+
+    .form-check-input {
+        width: 18px;
+        height: 18px;
+        border: 2px solid var(--primary-color);
+        border-radius: 4px;
+        background: transparent;
+        transition: var(--transition);
+    }
+
+    .form-check-input:checked {
+        background: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+
+    .form-check-label {
+        color: var(--text-primary);
+        font-weight: 500;
+        cursor: pointer;
+        margin: 0;
+    }
+
+    .btn {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 12px;
+        font-weight: 500;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: var(--transition);
+        cursor: pointer;
+        backdrop-filter: blur(10px);
+        font-size: 0.95rem;
+        margin-right: 1rem;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        color: white;
+        box-shadow: 0 4px 15px rgba(22, 78, 99, 0.3);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(22, 78, 99, 0.4);
+        color: white;
+        text-decoration: none;
+    }
+
+    .btn-secondary {
+        background: rgba(255, 255, 255, 0.3);
+        color: var(--text-secondary);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.4);
+        transform: translateY(-1px);
+        color: var(--text-primary);
+        text-decoration: none;
+    }
+
+    .text-danger {
+        color: var(--danger-color);
+    }
+
+    .mb-3 {
+        margin-bottom: 1.5rem;
+    }
+
+    .button-group {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.2);
+    }
+</style>
+
+<div class="container py-5">
+    <div class="page-header">
+        <h4><i class="fas fa-plus-circle me-2"></i>Add New Work</h4>
+    </div>
+
+    <div class="form-container">
+        <form action="inc/action_works.php" method="POST" enctype="multipart/form-data" id="createWorkForm">
+            <input type="hidden" name="action" value="create_work">
+
+            <div class="mb-3">
+                <label class="form-label">Title <span class="text-danger">*</span></label>
+                <input type="text" name="title" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Description <span class="text-danger">*</span></label>
+                <textarea name="description" rows="5" class="form-control" required></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Link (optional)</label>
+                <input type="url" name="link" class="form-control" placeholder="https://example.com">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Image <span class="text-danger">*</span></label>
+                <input type="file" name="image" class="form-control" accept="image/*" required>
+            </div>
+
+            <div class="mb-3">
+                <div class="form-check">
+                    <input type="checkbox" name="status" class="form-check-input" checked>
+                    <label class="form-check-label">Active</label>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-1"></i> Save Work
+                </button>
+                <a href="works.php" class="btn btn-secondary">
+                    <i class="fas fa-times me-1"></i> Cancel
+                </a>
+            </div>
+        </form>
+    </div>
 </div>
 
 <?php require_once 'inc/footer.php'; ?>
 
 <script>
-$(document).ready(function(){
-    $('#createWorkForm').on('submit', function(e) {
-        e.preventDefault();
+    $(document).ready(function() {
+        $('#createWorkForm').on('submit', function(e) {
+            e.preventDefault();
 
-        var formData = new FormData(this);
+            var formData = new FormData(this);
 
-        $.ajax({
-            url: 'inc/action_works.php',
-            type: 'POST',
-            data: formData,
-            contentType: false,
-            processData: false,
-            dataType: 'json',
-            success: function(response) {
-                if(response.status === 'success') {
-                    Swal.fire({
-                        icon: 'success',
-                        title: response.message,
-                        timer: 2000,
-                        showConfirmButton: false
-                    }).then(() => {
-                        window.location.href = response.redirect;
-                    });
-                } else {
-                    Swal.fire('Error', response.message, 'error');
+            $.ajax({
+                url: 'inc/action_works.php',
+                type: 'POST',
+                data: formData,
+                contentType: false,
+                processData: false,
+                dataType: 'json',
+                success: function(response) {
+                    if (response.status === 'success') {
+                        Swal.fire({
+                            icon: 'success',
+                            title: response.message,
+                            timer: 2000,
+                            showConfirmButton: false
+                        }).then(() => {
+                            window.location.href = response.redirect;
+                        });
+                    } else {
+                        Swal.fire('Error', response.message, 'error');
+                    }
+                },
+                error: function() {
+                    Swal.fire('Error', 'AJAX request failed', 'error');
                 }
-            },
-            error: function() {
-                Swal.fire('Error', 'AJAX request failed', 'error');
-            }
+            });
         });
     });
-});
 </script>

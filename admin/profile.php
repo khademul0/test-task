@@ -18,35 +18,317 @@ if (!$user) {
 ?>
 
 <style>
+    /* Replaced entire styling with dashboard-matching glassy design system */
+    :root {
+        --primary-color: #164e63;
+        --primary-dark: #0f3a47;
+        --secondary-color: #ec4899;
+        --accent-color: #f59e0b;
+        --success-color: #10b981;
+        --danger-color: #dc2626;
+        --warning-color: #f59e0b;
+        --light-bg: rgba(255, 255, 255, 0.8);
+        --card-bg: rgba(255, 255, 255, 0.25);
+        --glass-bg: rgba(255, 255, 255, 0.15);
+        --text-primary: #164e63;
+        --text-secondary: #475569;
+        --shadow: 0 25px 50px rgba(22, 78, 99, 0.15);
+        --shadow-lg: 0 35px 70px rgba(22, 78, 99, 0.2);
+        --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
     body {
-        background-color: #f8f9fa;
+        background: linear-gradient(135deg, #f0f9ff 0%, #b8e1fcff 50%, #80b4e9ff 100%);
+        min-height: 100vh;
+    }
+
+    .py-5 {
+        padding: 3rem 0;
+    }
+
+    .container {
+        max-width: 900px;
+    }
+
+    .page-title {
+        color: var(--text-primary);
+        font-weight: 600;
+        margin-bottom: 2rem;
+        font-size: 1.75rem;
     }
 
     .card-profile {
-        border-radius: 10px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(25px);
+        background: var(--card-bg);
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        border-radius: 20px;
+        box-shadow: var(--shadow);
+        overflow: hidden;
+        position: relative;
     }
 
-    .card-profile .card-header {
-        background-color: #007bff;
+    .card-profile::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+    }
+
+    .card-header {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
         color: white;
-        border-radius: 10px 10px 0 0;
+        padding: 1.5rem 2rem;
+        border: none;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .card-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+    }
+
+    .card-header h4 {
+        margin: 0;
+        font-weight: 600;
+        position: relative;
+        z-index: 1;
+    }
+
+    .card-body {
+        padding: 0;
     }
 
     .profile-img {
         max-width: 150px;
-        border: 2px solid #007bff;
+        border: 3px solid var(--primary-color);
         border-radius: 50%;
+        box-shadow: 0 8px 25px rgba(22, 78, 99, 0.2);
+        transition: var(--transition);
+    }
+
+    .profile-img:hover {
+        transform: scale(1.05);
+        box-shadow: 0 12px 35px rgba(22, 78, 99, 0.3);
     }
 
     .form-section {
-        padding: 1.5rem;
+        padding: 2rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .form-section:last-child {
+        border-bottom: none;
     }
 
     .form-section h5 {
-        border-bottom: 1px solid #dee2e6;
-        padding-bottom: 0.5rem;
+        color: var(--text-primary);
+        font-weight: 600;
         margin-bottom: 1.5rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid rgba(22, 78, 99, 0.1);
+        font-size: 1.1rem;
+    }
+
+    .form-label {
+        color: var(--text-primary);
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .form-control,
+    .form-select {
+        backdrop-filter: blur(10px);
+        background: rgba(255, 255, 255, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 12px;
+        padding: 0.75rem 1rem;
+        color: var(--text-primary);
+        transition: var(--transition);
+        font-size: 0.95rem;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(22, 78, 99, 0.1);
+        background: rgba(255, 255, 255, 0.4);
+    }
+
+    .form-control::placeholder {
+        color: var(--text-secondary);
+        opacity: 0.7;
+    }
+
+    .form-check {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1rem;
+        backdrop-filter: blur(10px);
+        background: rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        border-radius: 12px;
+        transition: var(--transition);
+    }
+
+    .form-check:hover {
+        background: rgba(255, 255, 255, 0.3);
+    }
+
+    .form-check-input {
+        width: 18px;
+        height: 18px;
+        border: 2px solid var(--primary-color);
+        border-radius: 4px;
+        background: transparent;
+        transition: var(--transition);
+    }
+
+    .form-check-input:checked {
+        background: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+
+    .form-check-label {
+        color: var(--text-primary);
+        font-weight: 500;
+        cursor: pointer;
+        margin: 0;
+    }
+
+    .btn {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 12px;
+        font-weight: 500;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: var(--transition);
+        cursor: pointer;
+        backdrop-filter: blur(10px);
+        font-size: 0.95rem;
+        margin-right: 1rem;
+        position: relative;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        color: white;
+        box-shadow: 0 4px 15px rgba(22, 78, 99, 0.3);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(22, 78, 99, 0.4);
+        color: white;
+        text-decoration: none;
+    }
+
+    .btn-secondary {
+        background: rgba(255, 255, 255, 0.3);
+        color: var(--text-secondary);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.4);
+        transform: translateY(-1px);
+        color: var(--text-primary);
+        text-decoration: none;
+    }
+
+    .spinner-border-sm {
+        width: 1rem;
+        height: 1rem;
+        border-width: 0.15em;
+    }
+
+    .text-danger {
+        color: var(--danger-color);
+    }
+
+    .text-primary {
+        color: var(--text-primary);
+    }
+
+    .mb-3 {
+        margin-bottom: 1.5rem;
+    }
+
+    .mb-4 {
+        margin-bottom: 2rem;
+    }
+
+    .me-1 {
+        margin-right: 0.25rem;
+    }
+
+    .me-2 {
+        margin-right: 0.5rem;
+    }
+
+    .d-none {
+        display: none !important;
+    }
+
+    .row {
+        display: flex;
+        flex-wrap: wrap;
+        margin: 0 -0.75rem;
+    }
+
+    .col-md-4,
+    .col-md-8 {
+        padding: 0 0.75rem;
+    }
+
+    .col-md-4 {
+        flex: 0 0 33.333333%;
+        max-width: 33.333333%;
+    }
+
+    .col-md-8 {
+        flex: 0 0 66.666667%;
+        max-width: 66.666667%;
+    }
+
+    .text-center {
+        text-align: center;
+    }
+
+    .img-thumbnail {
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 12px;
+        backdrop-filter: blur(10px);
+        background: rgba(255, 255, 255, 0.2);
+        padding: 0.5rem;
+    }
+
+    .mt-2 {
+        margin-top: 0.5rem;
+    }
+
+    .button-group {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+        padding: 2rem;
+        background: rgba(255, 255, 255, 0.1);
+        border-top: 1px solid rgba(255, 255, 255, 0.2);
     }
 
     .loader-overlay {
@@ -56,18 +338,19 @@ if (!$user) {
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(0, 0, 0, 0.5);
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(10px);
         z-index: 9999;
         justify-content: center;
         align-items: center;
     }
 
     .loader {
-        border: 4px solid #f3f3f3;
-        border-top: 4px solid #3498db;
+        width: 50px;
+        height: 50px;
+        border: 4px solid rgba(22, 78, 99, 0.2);
+        border-top: 4px solid var(--primary-color);
         border-radius: 50%;
-        width: 40px;
-        height: 40px;
         animation: spin 1s linear infinite;
     }
 
@@ -80,11 +363,34 @@ if (!$user) {
             transform: rotate(360deg);
         }
     }
+
+    @media (max-width: 768px) {
+
+        .col-md-4,
+        .col-md-8 {
+            flex: 0 0 100%;
+            max-width: 100%;
+            margin-bottom: 1.5rem;
+        }
+
+        .row {
+            flex-direction: column;
+        }
+
+        .button-group {
+            flex-direction: column;
+        }
+
+        .btn {
+            margin-right: 0;
+            margin-bottom: 0.5rem;
+        }
+    }
 </style>
 
 <section class="py-5">
     <div class="container">
-        <h2 class="text-primary mb-4"><i class="fas fa-user me-2"></i> My Profile</h2>
+        <h2 class="page-title"><i class="fas fa-user me-2"></i> My Profile</h2>
 
         <div class="card card-profile">
             <div class="card-header">
@@ -126,9 +432,11 @@ if (!$user) {
 
                     <div class="form-section">
                         <h5>Security Settings</h5>
-                        <div class="mb-3 form-check">
-                            <input type="checkbox" name="2fa_enabled" class="form-check-input" id="2fa_enabled" <?= $user['2fa_enabled'] ? 'checked' : '' ?>>
-                            <label class="form-check-label" for="2fa_enabled">Enable Two-Factor Authentication</label>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input type="checkbox" name="2fa_enabled" class="form-check-input" id="2fa_enabled" <?= $user['2fa_enabled'] ? 'checked' : '' ?>>
+                                <label class="form-check-label" for="2fa_enabled">Enable Two-Factor Authentication</label>
+                            </div>
                         </div>
                     </div>
 
@@ -141,9 +449,11 @@ if (!$user) {
                                 <option value="dark" <?= $user['theme_preference'] === 'dark' ? 'selected' : '' ?>>Dark</option>
                             </select>
                         </div>
-                        <div class="mb-3 form-check">
-                            <input type="checkbox" name="email_notifications" class="form-check-input" id="email_notifications" <?= $user['email_notifications'] ? 'checked' : '' ?>>
-                            <label class="form-check-label" for="email_notifications">Receive Email Notifications</label>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input type="checkbox" name="email_notifications" class="form-check-input" id="email_notifications" <?= $user['email_notifications'] ? 'checked' : '' ?>>
+                                <label class="form-check-label" for="email_notifications">Receive Email Notifications</label>
+                            </div>
                         </div>
                     </div>
 
@@ -163,11 +473,15 @@ if (!$user) {
                         </div>
                     </div>
 
-                    <button type="submit" class="btn btn-primary" id="submitBtn">
-                        <i class="fas fa-save me-1"></i> <span class="btn-text">Update Profile</span>
-                        <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
-                    </button>
-                    <a href="dashboard.php" class="btn btn-secondary">Cancel</a>
+                    <div class="button-group">
+                        <button type="submit" class="btn btn-primary" id="submitBtn">
+                            <i class="fas fa-save me-1"></i> <span class="btn-text">Update Profile</span>
+                            <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                        </button>
+                        <a href="dashboard.php" class="btn btn-secondary">
+                            <i class="fas fa-times me-1"></i> Cancel
+                        </a>
+                    </div>
                 </form>
             </div>
         </div>
