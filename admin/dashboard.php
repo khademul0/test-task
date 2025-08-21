@@ -69,7 +69,7 @@ $recent_logs = $conn->query("SELECT al.*, u.name FROM activity_logs al JOIN user
         top: 0;
         left: 0;
         height: 100vh;
-        width: var(--sidebar-width);
+
         backdrop-filter: blur(30px);
         background: rgba(15, 23, 42, 0.95);
         border-right: 2px solid rgba(255, 255, 255, 0.15);
@@ -161,7 +161,7 @@ $recent_logs = $conn->query("SELECT al.*, u.name FROM activity_logs al JOIN user
 
     /* Main Content */
     .main-content {
-        margin-left: var(--sidebar-width);
+        margin-left: 210px;
         transition: margin-left 0.3s ease;
         min-height: 100vh;
     }
@@ -777,7 +777,7 @@ $recent_logs = $conn->query("SELECT al.*, u.name FROM activity_logs al JOIN user
             </a>
         </div>
         <div class="nav-item">
-            <a href="#" class="nav-link">
+            <a href="analytics.php" class="nav-link">
                 <i class="fas fa-chart-bar"></i>
                 <span>Analytics</span>
             </a>

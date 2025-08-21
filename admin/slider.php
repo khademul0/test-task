@@ -47,7 +47,6 @@ require_once __DIR__ . '/../app/db.php';
         top: 0;
         left: 0;
         height: 100vh;
-        width: var(--sidebar-width);
         backdrop-filter: blur(30px);
         background: rgba(15, 23, 42, 0.95);
         border-right: 2px solid rgba(255, 255, 255, 0.15);
@@ -138,7 +137,7 @@ require_once __DIR__ . '/../app/db.php';
     }
 
     .main-content {
-        margin-left: var(--sidebar-width);
+        margin-left: 210px;
         transition: margin-left 0.3s ease;
         min-height: 100vh;
     }
@@ -548,7 +547,7 @@ require_once __DIR__ . '/../app/db.php';
             </a>
         </div>
         <div class="nav-item">
-            <a href="#" class="nav-link">
+            <a href="analytics.php" class="nav-link">
                 <i class="fas fa-chart-bar"></i>
                 <span>Analytics</span>
             </a>
