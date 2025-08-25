@@ -32,6 +32,11 @@ $user_id = $is_logged_in ? intval($_SESSION['user_id']) : null;
             --shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.12);
             --gradient-primary: linear-gradient(135deg, #84cc16 0%, #65a30d 100%);
             --gradient-card: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
+            --color-primary: #84cc16;
+            --color-foreground: #374151;
+            --color-muted-foreground: #6b7280;
+            --color-background: #ffffff;
+            --color-border: #e2e8f0;
         }
 
         body {
@@ -62,7 +67,7 @@ $user_id = $is_logged_in ? intval($_SESSION['user_id']) : null;
             font-family: var(--font-heading);
             font-weight: 900;
             font-size: 1.5rem;
-            color: #84cc16 !important;
+            color: var(--color-primary) !important;
         }
 
         .navbar-nav .nav-link {
@@ -238,7 +243,7 @@ $user_id = $is_logged_in ? intval($_SESSION['user_id']) : null;
 
         .footer-modern {
             background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-            border-top: 1px solid rgba(226, 232, 240, 0.6);
+            border-top: 1px solid var(--color-border);
             padding: 3rem 0 2rem;
             margin-top: 4rem;
         }
@@ -246,12 +251,12 @@ $user_id = $is_logged_in ? intval($_SESSION['user_id']) : null;
         .footer-title {
             font-family: var(--font-heading);
             font-weight: 700;
-            color: #374151;
+            color: var(--color-foreground);
             margin-bottom: 1rem;
         }
 
-        .footer a {
-            color: #6b7280;
+        .footer-link {
+            color: var(--color-muted-foreground);
             text-decoration: none;
             transition: all 0.3s ease;
             display: flex;
@@ -259,32 +264,33 @@ $user_id = $is_logged_in ? intval($_SESSION['user_id']) : null;
             margin-bottom: 0.5rem;
         }
 
-        .footer a:hover {
-            color: #84cc16;
+        .footer-link:hover {
+            color: var(--color-primary);
             transform: translateX(5px);
         }
 
-        .social-icons a {
+        .social-icon {
             width: 44px;
             height: 44px;
-            background: rgba(255, 255, 255, 0.8);
-            border: 2px solid rgba(226, 232, 240, 0.6);
+            background: var(--color-background);
+            border: 2px solid var(--color-border);
             border-radius: 12px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            color: #6b7280;
+            color: var(--color-muted-foreground);
             text-decoration: none;
             transition: all 0.3s ease;
             margin-right: 1rem;
             font-size: 1.2rem;
         }
 
-        .social-icons a:hover {
-            background: #84cc16;
-            border-color: #84cc16;
+        .social-icon:hover {
+            background: var(--color-primary);
+            border-color: var(--color-primary);
             color: white;
             transform: translateY(-3px);
+            box-shadow: var(--shadow-hover);
         }
 
         @media (max-width: 768px) {
@@ -389,37 +395,75 @@ $user_id = $is_logged_in ? intval($_SESSION['user_id']) : null;
 
     <footer class="footer-modern">
         <div class="container">
-            <div class="row">
-                <div class="col-md-4 mb-4">
-                    <h5 class="footer-title"><img src="assets/images/logo.png" alt="Netacart Logo" style="height: 30px;" class="me-2"> Netacart</h5>
-                    <p class="text-muted">Your one-stop shop for quality products. Discover the best deals and enjoy a seamless shopping experience.</p>
+            <div class="row g-4">
+                <div class="col-lg-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <img src="assets/images/logo.png" alt="Netacart Logo" height="40" class="me-2">
+                        <h5 class="footer-title mb-0">Netacart</h5>
+                    </div>
+                    <p class="text-muted mb-4">Your trusted partner for quality products and exceptional shopping experiences. Discover, shop, and enjoy with confidence.</p>
+                    <div class="d-flex">
+                        <a href="#" class="social-icon" target="_blank" rel="noopener noreferrer">
+                            <i class="bi bi-facebook"></i>
+                        </a>
+                        <a href="#" class="social-icon" target="_blank" rel="noopener noreferrer">
+                            <i class="bi bi-twitter"></i>
+                        </a>
+                        <a href="#" class="social-icon" target="_blank" rel="noopener noreferrer">
+                            <i class="bi bi-instagram"></i>
+                        </a>
+                        <a href="#" class="social-icon" target="_blank" rel="noopener noreferrer">
+                            <i class="bi bi-linkedin"></i>
+                        </a>
+                    </div>
                 </div>
-                <div class="col-md-4 mb-4">
-                    <h5 class="footer-title">Quick Links</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="index.php"><i class="bi bi-house me-2"></i> Home</a></li>
-                        <li><a href="portfolio.php"><i class="bi bi-shop me-2"></i> Shop</a></li>
-                        <li><a href="privacy.php"><i class="bi bi-shield-check me-2"></i> Privacy Policy</a></li>
-                        <li><a href="terms.php"><i class="bi bi-file-text me-2"></i> Terms & Conditions</a></li>
-                        <li><a href="contact.php"><i class="bi bi-envelope me-2"></i> Contact Us</a></li>
-                    </ul>
+                <div class="col-lg-2 col-md-6">
+                    <h6 class="footer-title">Quick Links</h6>
+                    <div class="d-flex flex-column">
+                        <a href="index.php" class="footer-link">
+                            <i class="bi bi-house me-2"></i> Home
+                        </a>
+                        <a href="portfolio.php" class="footer-link">
+                            <i class="bi bi-shop me-2"></i> Shop
+                        </a>
+                        <a href="contact.php" class="footer-link">
+                            <i class="bi bi-envelope me-2"></i> Contact
+                        </a>
+                    </div>
                 </div>
-                <div class="col-md-4 mb-4">
-                    <h5 class="footer-title">Follow Us</h5>
-                    <div class="social-icons">
-                        <a href="#" target="_blank" rel="noopener noreferrer"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#" target="_blank" rel="noopener noreferrer"><i class="fab fa-twitter"></i></a>
-                        <a href="#" target="_blank" rel="noopener noreferrer"><i class="fab fa-instagram"></i></a>
-                        <a href="#" target="_blank" rel="noopener noreferrer"><i class="fab fa-linkedin-in"></i></a>
+                <div class="col-lg-2 col-md-6">
+                    <h6 class="footer-title">Support</h6>
+                    <div class="d-flex flex-column">
+                        <a href="privacy.php" class="footer-link">
+                            <i class="bi bi-shield-check me-2"></i> Privacy Policy
+                        </a>
+                        <a href="terms.php" class="footer-link">
+                            <i class="bi bi-file-text me-2"></i> Terms & Conditions
+                        </a>
+                        <a href="#" class="footer-link">
+                            <i class="bi bi-question-circle me-2"></i> FAQ
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <h6 class="footer-title">Stay Updated</h6>
+                    <p class="text-muted mb-3">Subscribe to our newsletter for the latest products and exclusive offers.</p>
+                    <div class="d-flex">
+                        <input type="email" class="form-control form-control-modern me-2" placeholder="Enter your email">
+                        <button class="btn btn-primary-modern btn-modern">
+                            <i class="bi bi-send"></i>
+                        </button>
                     </div>
                 </div>
             </div>
-            <hr class="bg-light">
+            <hr class="my-4">
             <div class="text-center">
-                <p class="mb-0">&copy; <?= date('Y') ?> <strong>Netacart</strong>. All rights reserved.</p>
+                <p class="text-muted mb-0">
+                    &copy; <?= date('Y') ?> <strong>Netacart</strong>. All rights reserved. Made with
+                    <i class="bi bi-heart-fill text-danger"></i> for amazing shopping experiences.
+                </p>
             </div>
         </div>
-        <div class="loader-overlay"><span class="loader"></span></div>
     </footer>
 
     <script src="assets/js/jquery-3.7.1.min.js"></script>
