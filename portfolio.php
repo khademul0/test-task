@@ -95,6 +95,117 @@ $user_role = $is_logged_in ? getUserRole() : null;
             border-radius: 2px;
         }
 
+        /* Enhanced user avatar with glassy styling */
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 4px 15px rgba(22, 78, 99, 0.2);
+        }
+
+        .user-avatar:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(22, 78, 99, 0.3);
+        }
+
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .profile-upload-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            color: white;
+            font-size: 0.8rem;
+        }
+
+        .user-avatar:hover .profile-upload-overlay {
+            opacity: 1;
+        }
+
+        /* Enhanced profile dropdown with glassy design */
+        .profile-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            backdrop-filter: blur(25px);
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            padding: 0.5rem 0;
+            min-width: 180px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            margin-top: 8px;
+        }
+
+        .profile-dropdown.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .profile-dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--color-foreground);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .profile-dropdown-item:hover {
+            background: rgba(173, 216, 230, 0.3);
+            transform: translateX(5px);
+        }
+
+        .profile-dropdown-item i {
+            width: 16px;
+            color: var(--color-primary);
+        }
+
+        #profilePhotoInput {
+            display: none;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            position: relative;
+        }
+
         /* Modern search bar */
         .search-container {
             position: relative;
@@ -711,6 +822,7 @@ $user_role = $is_logged_in ? getUserRole() : null;
     <!-- Modern navigation header -->
     <nav class="navbar navbar-expand-lg navbar-modern sticky-top">
         <div class="container">
+            <!-- Moved profile section back to right side, keeping only brand on left -->
             <a class="navbar-brand d-flex align-items-center" href="index.php">
                 <img src="assets/images/logo.png" alt="Netacart Logo" height="40" class="me-2">
                 Netacart
@@ -747,8 +859,8 @@ $user_role = $is_logged_in ? getUserRole() : null;
                     </button>
                 </div>
 
-                <!-- Modern action buttons -->
-                <div class="d-flex gap-2">
+                <!-- Profile and logout section moved back to right side with other action buttons -->
+                <div class="d-flex gap-2 align-items-center">
                     <button class="action-btn" data-bs-toggle="modal" data-bs-target="#cartModal">
                         <i class="bi bi-cart3"></i> Cart
                         <span id="cartCount" class="badge-modern">0</span>
@@ -757,6 +869,64 @@ $user_role = $is_logged_in ? getUserRole() : null;
                         <i class="bi bi-heart"></i> Wishlist
                         <span id="wishlistCount" class="badge-modern">0</span>
                     </button>
+
+                    <?php if ($is_logged_in): ?>
+                    <!-- Profile picture with dropdown -->
+                    <div class="user-info">
+                        <div class="user-avatar" id="userAvatar" onclick="toggleProfileDropdown()">
+                            <?php
+                            // Get user profile photo from database
+                            $user_id = intval($_SESSION['user_id']);
+                            $stmt = $conn->prepare("SELECT photo FROM users WHERE id = ?");
+                            $stmt->bind_param("i", $user_id);
+                            $stmt->execute();
+                            $user_data = $stmt->get_result()->fetch_assoc();
+                            $profile_photo = $user_data['photo'] ?? null;
+
+                            if ($profile_photo && file_exists("assets/images/profiles/" . $profile_photo)):
+                            ?>
+                                <img src="assets/images/profiles/<?= htmlspecialchars($profile_photo) ?>" alt="Profile Photo">
+                                <div class="profile-upload-overlay">
+                                    <i class="bi bi-camera"></i>
+                                </div>
+                            <?php else: ?>
+                                <?= strtoupper(substr($_SESSION['user_name'] ?? 'U', 0, 1)) ?>
+                                <div class="profile-upload-overlay">
+                                    <i class="bi bi-camera"></i>
+                                </div>
+                            <?php endif; ?>
+
+                            <!-- Profile dropdown for photo management and settings -->
+                            <div class="profile-dropdown" id="profileDropdown">
+                                <div class="profile-dropdown-item" onclick="document.getElementById('profilePhotoInput').click()">
+                                    <i class="bi bi-camera"></i>
+                                    <span>Change Photo</span>
+                                </div>
+                                <div class="profile-dropdown-item" onclick="removeProfilePhoto()">
+                                    <i class="bi bi-trash"></i>
+                                    <span>Remove Photo</span>
+                                </div>
+                                <hr style="margin: 0.5rem 0; border: none; border-top: 1px solid #e2e8f0;">
+                                <div class="profile-dropdown-item" onclick="window.location.href='admin/profile.php'">
+                                    <i class="bi bi-person"></i>
+                                    <span>Profile Settings</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Hidden file input for profile photo upload -->
+                        <input type="file" id="profilePhotoInput" accept="image/*" onchange="uploadProfilePhoto(this)">
+                    </div>
+                    
+                    <!-- Separate logout button -->
+                    <button class="action-btn" onclick="logout()" title="Logout">
+                        <i class="bi bi-box-arrow-right"></i> Logout
+                    </button>
+                    <?php else: ?>
+                    <a href="admin/login.php" class="action-btn">
+                        <i class="bi bi-person"></i> Login
+                    </a>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
@@ -1988,6 +2158,105 @@ $user_role = $is_logged_in ? getUserRole() : null;
                 $(this).removeClass('card-hover-effect');
             });
         });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Close profile dropdown when clicking outside
+            document.addEventListener('click', function(event) {
+                const profileDropdown = document.getElementById('profileDropdown');
+                const userAvatar = document.getElementById('userAvatar');
+
+                if (userAvatar && !userAvatar.contains(event.target)) {
+                    profileDropdown?.classList.remove('show');
+                }
+            });
+        });
+
+        function toggleProfileDropdown() {
+            const dropdown = document.getElementById('profileDropdown');
+            if (dropdown) {
+                dropdown.classList.toggle('show');
+            }
+        }
+
+        function uploadProfilePhoto(input) {
+            if (input.files && input.files[0]) {
+                const formData = new FormData();
+                formData.append('photo', input.files[0]);
+                formData.append('action', 'upload_profile_photo');
+
+                // Show loading
+                showNotification('Uploading photo...', 'info');
+
+                fetch('admin/profile_action.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        showNotification('Profile photo updated successfully!', 'success');
+                        // Reload the page to show new photo
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1500);
+                    } else {
+                        showNotification(data.message || 'Failed to upload photo', 'error');
+                    }
+                })
+                .catch(error => {
+                    showNotification('Upload failed: ' + error, 'error');
+                });
+            }
+        }
+
+        function removeProfilePhoto() {
+            if (confirm('Are you sure you want to remove your profile photo?')) {
+                fetch('admin/profile_action.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: 'action=remove_profile_photo'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        showNotification('Profile photo removed successfully!', 'success');
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1500);
+                    } else {
+                        showNotification(data.message || 'Failed to remove photo', 'error');
+                    }
+                })
+                .catch(error => {
+                    showNotification('Remove failed: ' + error, 'error');
+                });
+            }
+        }
+
+        function showNotification(message, type = 'info') {
+            // Remove existing notifications
+            const existingNotifications = document.querySelectorAll('.notification');
+            existingNotifications.forEach(n => n.remove());
+
+            const notification = document.createElement('div');
+            notification.className = `alert alert-${type === 'success' ? 'success' : type === 'error' ? 'danger' : 'info'} position-fixed`;
+            notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+            notification.innerHTML = `<i class="bi bi-${type === 'success' ? 'check' : type === 'error' ? 'x' : 'info'}-circle me-2"></i>${message}`;
+
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                window.location.href = 'admin/logout.php';
+            }
+        }
     </script>
 </body>
 
