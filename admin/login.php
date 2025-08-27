@@ -51,8 +51,6 @@
             overflow-x: hidden;
         }
 
-
-
         .auth-container {
             /* Reduced container max-width for smaller, cuter form */
             width: 100%;
@@ -109,15 +107,20 @@
         }
 
         .logo-img {
-            /* Slightly smaller logo for compact design */
+            /* Enhanced logo with darker shadow and 3D glowing effect */
             width: 140px;
             height: auto;
-            filter: drop-shadow(0 3px 8px rgba(22, 78, 99, 0.15));
-            transition: transform 0.3s ease;
+            filter:
+                drop-shadow(0 8px 16px rgba(0, 0, 0, 0.4)) drop-shadow(0 4px 8px rgba(22, 78, 99, 0.6)) drop-shadow(0 0 20px rgba(22, 78, 99, 0.8));
+            transition: all 0.3s ease;
+            transform-style: preserve-3d;
+            position: relative;
         }
 
         .logo-img:hover {
-            transform: scale(1.05);
+            transform: scale(1.05) translateZ(10px);
+            filter:
+                drop-shadow(0 12px 24px rgba(0, 0, 0, 0.5)) drop-shadow(0 6px 12px rgba(22, 78, 99, 0.7)) drop-shadow(0 0 30px rgba(22, 78, 99, 1)) drop-shadow(0 0 40px rgba(67, 233, 249, 0.6));
         }
 
         .auth-title {
