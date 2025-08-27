@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once 'app/db.php';
+require_once 'admin/role_check.php';
 
 // Enable debug mode (set to false in production)
 $debug_mode = true;
@@ -8,6 +9,8 @@ $debug_mode = true;
 // Check if user is logged in
 $is_logged_in = isset($_SESSION['user_id']);
 $user_id = $is_logged_in ? intval($_SESSION['user_id']) : null;
+
+$user_role = $is_logged_in ? getUserRole() : null;
 ?>
 
 <!DOCTYPE html>

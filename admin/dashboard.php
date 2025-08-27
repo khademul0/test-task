@@ -1,6 +1,10 @@
 <?php
 require_once __DIR__ . '/inc/header.php';
 require_once __DIR__ . '/../app/db.php';
+require_once __DIR__ . '/role_check.php';
+
+// Check if user is admin - redirect customers to portfolio
+checkUserRole('admin');
 
 $site_url = "http://localhost/task-project/";
 
@@ -783,7 +787,7 @@ $recent_logs = $conn->query("SELECT al.*, u.name FROM activity_logs al JOIN user
             </a>
         </div>
         <div class="nav-item">
-            <a href="#" class="nav-link">
+            <a href="settings.php" class="nav-link">
                 <i class="fas fa-cog"></i>
                 <span>Settings</span>
             </a>

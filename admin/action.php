@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             send_response('error', 'Email and password are required.');
         }
 
-        $stmt = $conn->prepare("SELECT id, name, email, password FROM users WHERE email = ?");
+        $stmt = $conn->prepare("SELECT id, name, email, password, role_play FROM users WHERE email = ?");
         $stmt->bind_param('s', $email);
         $stmt->execute();
         $result = $stmt->get_result();
@@ -38,6 +38,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['user_name'] = $user['name'];
                 $_SESSION['user_email'] = $user['email'];
+                $_SESSION['user_role'] = $user['role_play']; // Store user role in session
+                
                 if (isset($_POST['remember'])) {
                     setcookie('remember_email', $user['email'], time() + (86400 * 7), '/');
                     setcookie('remember_pass', $password, time() + (86400 * 7), '/');
@@ -48,7 +50,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
                 setcookie('user_email', $user['email'], time() + 3600, '/');
 
-                send_response('success', 'Login successful. Redirecting...', 'dashboard.php');
+                $redirect_url = ($user['role_play'] === 'admin') ? 'dashboard.php' : '../portfolio.php';
+                send_response('success', 'Login successful. Redirecting...', $redirect_url);
             } else {
                 send_response('error', 'Incorrect password.');
             }
@@ -86,7 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         }
 
         $hashed = password_hash($password, PASSWORD_DEFAULT);
-        $stmt = $conn->prepare("INSERT INTO users (name, email, password) VALUES (?, ?, ?)");
+        $stmt = $conn->prepare("INSERT INTO users (name, email, password, role_play) VALUES (?, ?, ?, 'customer')");
         $stmt->bind_param('sss', $name, $email, $hashed);
         if ($stmt->execute()) {
             send_response('success', 'Registration successful. You can now log in.');
@@ -126,6 +129,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         send_response('error', 'Invalid action.');
     }
 } else {
+    // ... existing profile update code ...
+    
     // Update Profile Photo
     if (isset($_POST['action']) && $_POST['action'] === 'update_profile_photo') {
         $user_id = intval($_SESSION['user_id']);
@@ -248,3 +253,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     }
     send_response('error', 'Invalid request.');
 }
+?>

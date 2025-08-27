@@ -1,7 +1,10 @@
 <?php
 require_once __DIR__ . '/inc/header.php';
 require_once __DIR__ . '/../app/db.php';
-require_once __DIR__ . '/../app/Auth.php';
+require_once __DIR__ . '/role_check.php';
+
+// Check if user is admin - redirect customers to portfolio
+checkUserRole('admin');
 
 App\Auth::check();
 
