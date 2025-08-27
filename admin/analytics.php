@@ -730,7 +730,7 @@ try {
             </a>
         </div>
         <div class="nav-item">
-            <a href="#" class="nav-link">
+            <a href="settings.php" class="nav-link">
                 <i class="fas fa-cog"></i>
                 <span>Settings</span>
             </a>
