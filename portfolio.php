@@ -289,26 +289,26 @@ $user_role = $is_logged_in ? getUserRole() : null;
             border-radius: 16px;
             overflow: hidden;
             box-shadow: var(--shadow-soft);
-            margin-bottom: 2.5rem;
+            margin-bottom: 0.5rem;
             /* Made carousel smaller and more compact */
         }
 
         .carousel-item img {
-            height: 320px;
+            height: 250px;
             object-fit: cover;
         }
 
         .carousel-caption-modern {
             background: linear-gradient(135deg, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.4) 100%);
             border-radius: 15px;
-            padding: 2rem;
+            padding: 0rem;
             backdrop-filter: blur(10px);
         }
 
         /* Modern section headers */
         .section-header {
             text-align: center;
-            margin-bottom: 3rem;
+            margin-bottom: 0.5rem;
         }
 
         .section-title {
@@ -318,7 +318,7 @@ $user_role = $is_logged_in ? getUserRole() : null;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            margin-bottom: 1rem;
+            margin-bottom: 0rem;
         }
 
         .section-subtitle {
@@ -326,6 +326,7 @@ $user_role = $is_logged_in ? getUserRole() : null;
             color: var(--color-muted-foreground);
             max-width: 600px;
             margin: 0 auto;
+            margin-bottom: 1rem;
         }
 
         /* Modern filter section */
@@ -333,13 +334,13 @@ $user_role = $is_logged_in ? getUserRole() : null;
             background: var(--gradient-card);
             border: 1px solid var(--color-border);
             border-radius: 20px;
-            padding: 2rem;
+            padding: 1rem;
             box-shadow: var(--shadow-soft);
             margin-bottom: 3rem;
         }
 
         .filter-label {
-            font-weight: 600;
+            font-weight: 300;
             color: var(--color-foreground);
             margin-bottom: 0.5rem;
             font-size: 0.95rem;
@@ -710,7 +711,7 @@ $user_role = $is_logged_in ? getUserRole() : null;
         }
 
         /* Responsive improvements */
-        @media (max-width: 768px) {
+        @media (max-width: 668px) {
             .section-title {
                 font-size: 2rem;
             }
@@ -720,7 +721,7 @@ $user_role = $is_logged_in ? getUserRole() : null;
             }
 
             .filter-card {
-                padding: 1.5rem;
+                padding: 0.5rem;
             }
 
             .search-container {
@@ -915,7 +916,7 @@ $user_role = $is_logged_in ? getUserRole() : null;
     </nav>
 
     <!-- Modern announcement carousel -->
-    <section class="container my-4">
+    <section class="container my-1">
         <div id="announcementCarousel" class="carousel slide carousel-modern" data-bs-ride="carousel">
             <div class="carousel-inner">
                 <?php
@@ -990,7 +991,7 @@ $user_role = $is_logged_in ? getUserRole() : null;
     </section>
 
     <!-- Modern shop section -->
-    <section class="container py-5">
+    <section class="container py-2">
         <!-- Modern section header -->
         <div class="section-header fade-in">
             <h1 class="section-title">Discover Amazing Products</h1>
@@ -999,7 +1000,7 @@ $user_role = $is_logged_in ? getUserRole() : null;
 
         <!-- Modern filter section -->
         <div class="filter-card fade-in">
-            <div class="row g-4">
+            <div class="row g-2">
                 <div class="col-md-4">
                     <label class="filter-label">Price Range ($0 - $500)</label>
                     <input type="range" class="form-range form-range-modern w-100" id="priceRange" min="0" max="500" value="500">
