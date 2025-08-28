@@ -823,7 +823,7 @@ $user_role = $is_logged_in ? getUserRole() : null;
     <nav class="navbar navbar-expand-lg navbar-modern sticky-top">
         <div class="container">
             <!-- Moved profile section back to right side, keeping only brand on left -->
-            <a class="navbar-brand d-flex align-items-center" href="index.php">
+            <a class="navbar-brand d-flex align-items-center" href="portfolio.php">
                 <img src="assets/images/logo.png" alt="Netacart Logo" height="40" class="me-2">
                 Netacart
             </a>
@@ -834,11 +834,7 @@ $user_role = $is_logged_in ? getUserRole() : null;
 
             <div class="collapse navbar-collapse" id="navbarContent">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link" href="index.php">
-                            <i class="bi bi-house me-1"></i> Home
-                        </a>
-                    </li>
+
                     <li class="nav-item">
                         <a class="nav-link active" href="portfolio.php">
                             <i class="bi bi-shop me-1"></i> Shop
@@ -871,64 +867,50 @@ $user_role = $is_logged_in ? getUserRole() : null;
                     </button>
 
                     <?php if ($is_logged_in): ?>
-                    <!-- Profile picture with dropdown -->
-                    <div class="user-info">
-                        <div class="user-avatar" id="userAvatar" onclick="toggleProfileDropdown()">
-                            <?php
-                            // Get user profile photo from database
-                            $user_id = intval($_SESSION['user_id']);
-                            $stmt = $conn->prepare("SELECT photo FROM users WHERE id = ?");
-                            $stmt->bind_param("i", $user_id);
-                            $stmt->execute();
-                            $user_data = $stmt->get_result()->fetch_assoc();
-                            $profile_photo = $user_data['photo'] ?? null;
+                        <!-- Profile picture with dropdown -->
+                        <div class="user-info">
+                            <div class="user-avatar" id="userAvatar" onclick="toggleProfileDropdown()">
+                                <?php
+                                // Get user profile photo from database
+                                $user_id = intval($_SESSION['user_id']);
+                                $stmt = $conn->prepare("SELECT photo FROM users WHERE id = ?");
+                                $stmt->bind_param("i", $user_id);
+                                $stmt->execute();
+                                $user_data = $stmt->get_result()->fetch_assoc();
+                                $profile_photo = $user_data['photo'] ?? null;
 
-                            if ($profile_photo && file_exists("assets/images/profiles/" . $profile_photo)):
-                            ?>
-                                <img src="assets/images/profiles/<?= htmlspecialchars($profile_photo) ?>" alt="Profile Photo">
-                                <div class="profile-upload-overlay">
-                                    <i class="bi bi-camera"></i>
-                                </div>
-                            <?php else: ?>
-                                <?= strtoupper(substr($_SESSION['user_name'] ?? 'U', 0, 1)) ?>
-                                <div class="profile-upload-overlay">
-                                    <i class="bi bi-camera"></i>
-                                </div>
-                            <?php endif; ?>
+                                if ($profile_photo && file_exists("assets/images/profiles/" . $profile_photo)):
+                                ?>
+                                    <a href="user-dashboard.php">
 
-                            <!-- Profile dropdown for photo management and settings -->
-                            <div class="profile-dropdown" id="profileDropdown">
-                                <div class="profile-dropdown-item" onclick="document.getElementById('profilePhotoInput').click()">
-                                    <i class="bi bi-camera"></i>
-                                    <span>Change Photo</span>
-                                </div>
-                                <div class="profile-dropdown-item" onclick="removeProfilePhoto()">
-                                    <i class="bi bi-trash"></i>
-                                    <span>Remove Photo</span>
-                                </div>
-                                <hr style="margin: 0.5rem 0; border: none; border-top: 1px solid #e2e8f0;">
-                                <div class="profile-dropdown-item" onclick="window.location.href='admin/profile.php'">
-                                    <i class="bi bi-person"></i>
-                                    <span>Profile Settings</span>
-                                </div>
+                                        <img src="assets/images/profiles/<?= htmlspecialchars($profile_photo) ?>" alt="Profile Photo"></a>
+
+                                <?php else: ?>
+                                    <?= strtoupper(substr($_SESSION['user_name'] ?? 'U', 0, 1)) ?>
+
+                                <?php endif; ?>
+
+
+
                             </div>
                         </div>
-
-                        <!-- Hidden file input for profile photo upload -->
-                        <input type="file" id="profilePhotoInput" accept="image/*" onchange="uploadProfilePhoto(this)">
-                    </div>
-                    
-                    <!-- Separate logout button -->
-                    <button class="action-btn" onclick="logout()" title="Logout">
-                        <i class="bi bi-box-arrow-right"></i> Logout
-                    </button>
-                    <?php else: ?>
-                    <a href="admin/login.php" class="action-btn">
-                        <i class="bi bi-person"></i> Login
-                    </a>
-                    <?php endif; ?>
                 </div>
+
+                <!-- Hidden file input for profile photo upload -->
+                <input type="file" id="profilePhotoInput" accept="image/*" onchange="uploadProfilePhoto(this)">
             </div>
+
+            <!-- Separate logout button -->
+            <button class="action-btn" onclick="logout()" title="Logout">
+                <i class="bi bi-box-arrow-right"></i> Logout
+            </button>
+        <?php else: ?>
+            <a href="admin/login.php" class="action-btn">
+                <i class="bi bi-person"></i> Login
+            </a>
+        <?php endif; ?>
+        </div>
+        </div>
         </div>
     </nav>
 
@@ -2188,50 +2170,50 @@ $user_role = $is_logged_in ? getUserRole() : null;
                 showNotification('Uploading photo...', 'info');
 
                 fetch('admin/profile_action.php', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        showNotification('Profile photo updated successfully!', 'success');
-                        // Reload the page to show new photo
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 1500);
-                    } else {
-                        showNotification(data.message || 'Failed to upload photo', 'error');
-                    }
-                })
-                .catch(error => {
-                    showNotification('Upload failed: ' + error, 'error');
-                });
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            showNotification('Profile photo updated successfully!', 'success');
+                            // Reload the page to show new photo
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 1500);
+                        } else {
+                            showNotification(data.message || 'Failed to upload photo', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        showNotification('Upload failed: ' + error, 'error');
+                    });
             }
         }
 
         function removeProfilePhoto() {
             if (confirm('Are you sure you want to remove your profile photo?')) {
                 fetch('admin/profile_action.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: 'action=remove_profile_photo'
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        showNotification('Profile photo removed successfully!', 'success');
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 1500);
-                    } else {
-                        showNotification(data.message || 'Failed to remove photo', 'error');
-                    }
-                })
-                .catch(error => {
-                    showNotification('Remove failed: ' + error, 'error');
-                });
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: 'action=remove_profile_photo'
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            showNotification('Profile photo removed successfully!', 'success');
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 1500);
+                        } else {
+                            showNotification(data.message || 'Failed to remove photo', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        showNotification('Remove failed: ' + error, 'error');
+                    });
             }
         }
 

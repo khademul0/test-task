@@ -314,7 +314,7 @@ $user_id = $is_logged_in ? intval($_SESSION['user_id']) : null;
 <body>
     <nav class="navbar navbar-expand-lg navbar-modern sticky-top">
         <div class="container">
-            <a class="navbar-brand d-flex align-items-center" href="index.php">
+            <a class="navbar-brand d-flex align-items-center" href="portfolio.php">
                 <img src="assets/images/logo.png" alt="Netacart Logo" class="me-2"> Netacart
             </a>
             <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"
@@ -323,9 +323,7 @@ $user_id = $is_logged_in ? intval($_SESSION['user_id']) : null;
             </button>
             <div class="collapse navbar-collapse" id="navbarContent">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link" href="index.php"><i class="bi bi-house me-1"></i> Home</a>
-                    </li>
+
                     <li class="nav-item">
                         <a class="nav-link" href="portfolio.php"><i class="bi bi-shop me-1"></i> Shop</a>
                     </li>
