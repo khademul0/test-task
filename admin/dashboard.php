@@ -781,6 +781,12 @@ $recent_logs = $conn->query("SELECT al.*, u.name FROM activity_logs al JOIN user
             </a>
         </div>
         <div class="nav-item">
+            <a href="controls.php" class="nav-link">
+                <i class="fas fa-cogs"></i>
+                <span>Controls</span>
+            </a>
+        </div>
+        <div class="nav-item">
             <a href="analytics.php" class="nav-link">
                 <i class="fas fa-chart-bar"></i>
                 <span>Analytics</span>
