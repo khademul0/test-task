@@ -738,9 +738,18 @@ $activities = $activity_stmt->get_result()->fetch_all(MYSQLI_ASSOC);
                                                 <h4 class="text-primary">$<?= number_format($order['total'], 2) ?></h4>
                                                 <small class="text-muted"><?= $order['item_count'] ?> item(s)</small>
                                             </div>
-                                            <button class="btn btn-outline-primary btn-sm" onclick="generateInvoice(<?= $order['id'] ?>)">
-                                                <i class="bi bi-file-earmark-pdf me-1"></i>View Invoice
-                                            </button>
+                                            <div class="d-flex flex-column gap-2">
+                                                <button class="btn btn-outline-primary btn-sm" onclick="generateInvoice(<?= $order['id'] ?>)">
+                                                    <i class="bi bi-file-earmark-pdf me-1"></i>View Invoice
+                                                </button>
+                                                <?php // Added cancel button for orders that can be cancelled 
+                                                ?>
+                                                <?php if (in_array($order['status'], ['Pending', 'Processing'])): ?>
+                                                    <button class="btn btn-outline-danger btn-sm" onclick="cancelOrder(<?= $order['id'] ?>)" id="cancel-btn-<?= $order['id'] ?>">
+                                                        <i class="bi bi-x-circle me-1"></i>Cancel Order
+                                                    </button>
+                                                <?php endif; ?>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -870,6 +879,66 @@ $activities = $activity_stmt->get_result()->fetch_all(MYSQLI_ASSOC);
             });
         });
 
+        function cancelOrder(orderId) {
+            // Show confirmation dialog
+            if (!confirm('Are you sure you want to cancel this order? This action cannot be undone.')) {
+                return;
+            }
+
+            const cancelBtn = document.getElementById(`cancel-btn-${orderId}`);
+            const originalText = cancelBtn.innerHTML;
+
+            // Disable button and show loading state
+            cancelBtn.disabled = true;
+            cancelBtn.innerHTML = '<i class="bi bi-hourglass-split me-1"></i>Cancelling...';
+
+            // Create form data
+            const formData = new FormData();
+            formData.append('order_id', orderId);
+
+            // Send cancellation request
+            fetch('cancel_order.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.status === 'success') {
+                        showNotification('Order cancelled successfully!', 'success');
+
+                        // Update the order card UI
+                        const orderCard = cancelBtn.closest('.order-card');
+                        const statusBadge = orderCard.querySelector('.status-badge');
+
+                        // Update status badge
+                        statusBadge.className = 'status-badge status-cancelled';
+                        statusBadge.textContent = 'Cancelled';
+
+                        // Update data attribute for filtering
+                        orderCard.setAttribute('data-status', 'Cancelled');
+
+                        // Remove cancel button
+                        cancelBtn.remove();
+
+                    } else {
+                        throw new Error(data.message || 'Failed to cancel order');
+                    }
+                })
+                .catch(error => {
+                    console.error('Cancellation error:', error);
+                    showNotification(error.message || 'Failed to cancel order. Please try again.', 'error');
+
+                    // Restore button state
+                    cancelBtn.disabled = false;
+                    cancelBtn.innerHTML = originalText;
+                });
+        }
+
         function uploadProfilePhoto(input) {
             if (input.files && input.files[0]) {
                 const formData = new FormData();
@@ -934,21 +1003,32 @@ $activities = $activity_stmt->get_result()->fetch_all(MYSQLI_ASSOC);
             window.open(`invoice.php?order_id=${orderId}`, '_blank');
         }
 
-        // Notification system
         function showNotification(message, type = 'info') {
             const existingNotifications = document.querySelectorAll('.notification');
             existingNotifications.forEach(n => n.remove());
 
             const notification = document.createElement('div');
             notification.className = `alert alert-${type === 'success' ? 'success' : type === 'error' ? 'danger' : 'info'} position-fixed notification`;
-            notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
-            notification.innerHTML = `<i class="bi bi-${type === 'success' ? 'check' : type === 'error' ? 'x' : 'info'}-circle me-2"></i>${message}`;
+            notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px; max-width: 400px;';
+
+            const icon = type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-triangle' : 'info-circle';
+            notification.innerHTML = `
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-${icon} me-2"></i>
+                    <span>${message}</span>
+                    <button type="button" class="btn-close ms-auto" onclick="this.parentElement.parentElement.remove()"></button>
+                </div>
+            `;
 
             document.body.appendChild(notification);
 
+            // Auto-remove after 5 seconds for error messages, 3 seconds for others
+            const timeout = type === 'error' ? 5000 : 3000;
             setTimeout(() => {
-                notification.remove();
-            }, 3000);
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, timeout);
         }
     </script>
 </body>
