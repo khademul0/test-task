@@ -32,22 +32,13 @@ $orders_stmt->execute();
 $orders = $orders_stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
 // Get contact message history
-$contacts_stmt = $conn->prepare("
-    SELECT * FROM contact_submissions 
-    WHERE user_id = ? 
-    ORDER BY created_at DESC
-");
+$contacts_stmt = $conn->prepare("SELECT * FROM contact_submissions WHERE user_id = ? ORDER BY created_at DESC");
 $contacts_stmt->bind_param("i", $user_id);
 $contacts_stmt->execute();
 $contacts = $contacts_stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
 // Get recent activity
-$activity_stmt = $conn->prepare("
-    SELECT * FROM activity_logs 
-    WHERE user_id = ? 
-    ORDER BY created_at DESC 
-    LIMIT 10
-");
+$activity_stmt = $conn->prepare("SELECT * FROM activity_logs WHERE user_id = ? ORDER BY created_at DESC LIMIT 10");
 $activity_stmt->bind_param("i", $user_id);
 $activity_stmt->execute();
 $activities = $activity_stmt->get_result()->fetch_all(MYSQLI_ASSOC);
@@ -431,27 +422,71 @@ $activities = $activity_stmt->get_result()->fetch_all(MYSQLI_ASSOC);
             box-shadow: 0 6px 20px rgba(6, 182, 212, 0.3);
         }
 
-        /* Enhanced profile upload section with colorful glass design */
-        .profile-upload-section {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 250, 252, 0.9) 100%);
-            backdrop-filter: blur(20px);
-            border: 2px dashed rgba(59, 130, 246, 0.3);
-            border-radius: 16px;
-            padding: 2rem;
-            text-align: center;
-            margin-bottom: 2rem;
+        /* Added professional styling for View Invoice and Cancel Order buttons */
+        .btn-invoice {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            border: none;
+            border-radius: 6px;
+            padding: 0.25rem 0.5rem;
+            font-weight: 500;
+            font-size: 0.65rem;
+            color: white;
             transition: all 0.3s ease;
-        }
-
-        .upload-area {
+            box-shadow: 0 1px 4px rgba(59, 130, 246, 0.2);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            text-decoration: none;
             cursor: pointer;
-            transition: all 0.3s ease;
         }
 
-        .upload-area:hover {
-            border-color: #3b82f6;
-            background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(147, 197, 253, 0.05) 100%);
-            transform: translateY(-2px);
+        .btn-invoice:hover {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
+            color: white;
+        }
+
+        .btn-invoice:active {
+            transform: translateY(0);
+            box-shadow: 0 1px 3px rgba(59, 130, 246, 0.25);
+        }
+
+        .btn-cancel {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            border: none;
+            border-radius: 6px;
+            padding: 0.25rem 0.5rem;
+            font-weight: 500;
+            font-size: 0.65rem;
+            color: white;
+            transition: all 0.3s ease;
+            box-shadow: 0 1px 4px rgba(239, 68, 68, 0.2);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .btn-cancel:hover {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 6px rgba(239, 68, 68, 0.3);
+            color: white;
+        }
+
+        .btn-cancel:active {
+            transform: translateY(0);
+            box-shadow: 0 1px 3px rgba(239, 68, 68, 0.25);
+        }
+
+        .btn-group-professional {
+            display: flex;
+            flex-direction: row;
+            gap: 0.5rem;
+            align-items: center;
+            justify-content: flex-start;
         }
 
         /* Enhanced timeline with colorful accents */
@@ -738,15 +773,15 @@ $activities = $activity_stmt->get_result()->fetch_all(MYSQLI_ASSOC);
                                                 <h4 class="text-primary">$<?= number_format($order['total'], 2) ?></h4>
                                                 <small class="text-muted"><?= $order['item_count'] ?> item(s)</small>
                                             </div>
-                                            <div class="d-flex flex-column gap-2">
-                                                <button class="btn btn-outline-primary btn-sm" onclick="generateInvoice(<?= $order['id'] ?>)">
-                                                    <i class="bi bi-file-earmark-pdf me-1"></i>View Invoice
+                                            <div class="btn-group-professional">
+                                                <button class="btn-invoice" onclick="generateInvoice(<?= $order['id'] ?>)">
+                                                    <i class="bi bi-file-earmark-pdf"></i>View Invoice
                                                 </button>
                                                 <?php // Added cancel button for orders that can be cancelled 
                                                 ?>
                                                 <?php if (in_array($order['status'], ['Pending', 'Processing'])): ?>
-                                                    <button class="btn btn-outline-danger btn-sm" onclick="cancelOrder(<?= $order['id'] ?>)" id="cancel-btn-<?= $order['id'] ?>">
-                                                        <i class="bi bi-x-circle me-1"></i>Cancel Order
+                                                    <button class="btn-cancel" onclick="cancelOrder(<?= $order['id'] ?>)" id="cancel-btn-<?= $order['id'] ?>">
+                                                        <i class="bi bi-x-circle"></i>Cancel Order
                                                     </button>
                                                 <?php endif; ?>
                                             </div>
