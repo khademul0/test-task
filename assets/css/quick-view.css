@@ -1,0 +1,49 @@
+/* Added CSS for Quick View functionality */
+.quick-view-btn {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  border: none;
+  color: white;
+  border-radius: 8px;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  transition: all 0.3s ease;
+}
+
+.quick-view-btn:hover {
+  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+}
+
+.product-card:hover .quick-view-btn {
+  opacity: 1 !important;
+}
+
+.size-option,
+.color-option {
+  min-width: 50px;
+  transition: all 0.3s ease;
+}
+
+.size-option:hover,
+.color-option:hover {
+  transform: translateY(-1px);
+}
+
+#quickViewCarousel .carousel-control-prev,
+#quickViewCarousel .carousel-control-next {
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+#quickViewCarousel .carousel-control-prev {
+  left: 10px;
+}
+
+#quickViewCarousel .carousel-control-next {
+  right: 10px;
+}

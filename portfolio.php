@@ -816,6 +816,69 @@ $user_role = $is_logged_in ? getUserRole() : null;
             transform: translateY(-1px);
             /* Blue hover for outline buttons */
         }
+
+        /* Added Quick View Modal Styles */
+        .quick-view-btn {
+            transition: all 0.3s ease;
+        }
+
+        .quick-view-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .product-gallery .sub-images-container img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .product-gallery .sub-images-container img:hover,
+        .product-gallery .sub-images-container img.active {
+            border-color: #3b82f6;
+            transform: scale(1.05);
+        }
+
+        .size-option,
+        .color-option {
+            padding: 8px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+            font-weight: 500;
+        }
+
+        .size-option:hover,
+        .color-option:hover {
+            border-color: #3b82f6;
+            background: #eff6ff;
+        }
+
+        .size-option.selected,
+        .color-option.selected {
+            border-color: #3b82f6;
+            background: #3b82f6;
+            color: white;
+        }
+
+        .color-option {
+            min-width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #quickViewModal .modal-content {
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+        }
     </style>
 </head>
 
@@ -1115,7 +1178,7 @@ $user_role = $is_logged_in ? getUserRole() : null;
 
                                 <p class="product-description"><?= htmlspecialchars(substr($row['description'], 0, 80)) . (strlen($row['description']) > 80 ? '...' : '') ?></p>
 
-                                <div class="d-flex align-items-center justify-content-between mb-3">
+                                <div class="d-flex align-items-center gap-2 mb-3">
                                     <span class="price-tag">$<?= number_format($row['price'], 2) ?></span>
                                     <span class="stock-badge <?= $row['stock'] > 0 ? '' : 'out-of-stock' ?>">
                                         <?= $row['stock'] > 0 ? $row['stock'] . ' in stock' : 'Out of stock' ?>
@@ -1136,6 +1199,12 @@ $user_role = $is_logged_in ? getUserRole() : null;
                                     <input type="number" class="form-control quantity-input-modern quantity-input"
                                         data-id="<?= $row['id'] ?>" min="1" max="<?= $row['stock'] ?>" value="1"
                                         style="width: 60px; font-size: 0.9rem;">
+                                    <!-- Added Quick View button -->
+                                    <button class="btn btn-outline-primary btn-sm quick-view-btn"
+                                        data-id="<?= $row['id'] ?>"
+                                        style="border-radius: 10px; font-weight: 600; padding: 8px 12px;">
+                                        <i class="bi bi-eye me-1"></i> Quick View
+                                    </button>
                                     <!-- Added smaller, more prominent cart button -->
                                     <button class="btn btn-primary-modern btn-sm add-to-cart"
                                         data-id="<?= $row['id'] ?>" data-title="<?= htmlspecialchars($row['title']) ?>"
@@ -1147,12 +1216,7 @@ $user_role = $is_logged_in ? getUserRole() : null;
                                     </button>
                                 </div>
 
-                                <?php if (!empty($row['link'])): ?>
-                                    <a href="<?= htmlspecialchars($row['link']) ?>" target="_blank" rel="noopener noreferrer"
-                                        class="btn btn-outline-modern btn-modern w-100">
-                                        <i class="bi bi-link-45deg me-1"></i> View Details
-                                    </a>
-                                <?php endif; ?>
+
                             </div>
 
                             <div class="card-footer bg-transparent border-0 px-3 pb-3">
@@ -1181,6 +1245,82 @@ $user_role = $is_logged_in ? getUserRole() : null;
         </div>
     </section>
 
+    <!-- Added Quick View Modal -->
+    <div class="modal fade" id="quickViewModal" tabindex="-1" aria-labelledby="quickViewModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content" style="border: none; border-radius: 20px; backdrop-filter: blur(25px); background: rgba(255, 255, 255, 0.95);">
+                <div class="modal-header border-0" style="padding: 2rem 2rem 1rem;">
+                    <h5 class="modal-title fw-bold" id="quickViewModalLabel" style="color: #164e63;">Quick View</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="padding: 0 2rem 2rem;">
+                    <div class="row g-4">
+                        <!-- Product Images -->
+                        <div class="col-md-6">
+                            <div class="product-gallery">
+                                <div class="main-image-container" style="position: relative; border-radius: 15px; overflow: hidden; background: #f8fafc;">
+                                    <img id="quickViewMainImage" src="/placeholder.svg" alt="" class="img-fluid" style="width: 100%; height: 300px; object-fit: cover;">
+                                </div>
+                                <div class="sub-images-container mt-3" id="quickViewSubImages" style="display: flex; gap: 10px; flex-wrap: wrap;">
+                                    <!-- Sub images will be populated here -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Product Details -->
+                        <div class="col-md-6">
+                            <div class="product-details">
+                                <h4 id="quickViewTitle" class="fw-bold mb-3" style="color: #164e63;"></h4>
+                                <div id="quickViewCategory" class="mb-2"></div>
+                                <p id="quickViewDescription" class="text-muted mb-3"></p>
+
+                                <div class="price-rating-section mb-4">
+                                    <div class="d-flex align-items-center justify-content-between mb-2">
+                                        <span id="quickViewPrice" class="h4 fw-bold" style="color: #059669;"></span>
+                                        <span id="quickViewStock" class="badge"></span>
+                                    </div>
+                                    <div id="quickViewRating" class="rating-stars"></div>
+                                </div>
+
+                                <!-- Size Options -->
+                                <div id="quickViewSizes" class="mb-3" style="display: none;">
+                                    <label class="form-label fw-semibold">Size:</label>
+                                    <div class="size-options d-flex gap-2 flex-wrap">
+                                        <!-- Size options will be populated here -->
+                                    </div>
+                                </div>
+
+                                <!-- Color/Variant Options -->
+                                <div id="quickViewOptions" class="mb-3" style="display: none;">
+                                    <label class="form-label fw-semibold">Options:</label>
+                                    <div class="color-options d-flex gap-2 flex-wrap">
+                                        <!-- Color options will be populated here -->
+                                    </div>
+                                </div>
+
+                                <!-- Quantity and Add to Cart -->
+                                <div class="quantity-cart-section">
+                                    <div class="d-flex align-items-center gap-3 mb-3">
+                                        <label class="form-label fw-semibold mb-0">Quantity:</label>
+                                        <input type="number" id="quickViewQuantity" class="form-control" min="1" value="1" style="width: 80px; border-radius: 10px;">
+                                    </div>
+
+                                    <div class="d-flex gap-2">
+                                        <button id="quickViewAddToCart" class="btn btn-success flex-fill" style="border-radius: 12px; font-weight: 600; padding: 12px;">
+                                            <i class="bi bi-cart-plus me-2"></i>Add to Cart
+                                        </button>
+
+                                    </div>
+                                </div>
+
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Modern cart modal -->
     <!-- Enhanced cart modal with glass morphism design -->
@@ -2168,6 +2308,186 @@ $user_role = $is_logged_in ? getUserRole() : null;
 
             // Initialize modals
             updateCartCount();
+
+            $('.quick-view-btn').on('click', function() {
+                const workId = $(this).data('id');
+                openQuickView(workId);
+            });
+
+            function openQuickView(workId) {
+                $.ajax({
+                    url: 'get_work_details.php',
+                    method: 'GET',
+                    data: {
+                        id: workId
+                    },
+                    dataType: 'json',
+                    success: function(work) {
+                        if (work.status === 'success') {
+                            populateQuickView(work.data);
+                            $('#quickViewModal').modal('show');
+                        } else {
+                            Swal.fire('Error', work.message || 'Failed to load product details', 'error');
+                        }
+                    },
+                    error: function() {
+                        Swal.fire('Error', 'Failed to load product details', 'error');
+                    }
+                });
+            }
+
+            function populateQuickView(work) {
+                // Basic product info
+                $('#quickViewTitle').text(work.title);
+                $('#quickViewDescription').text(work.description);
+                $('#quickViewPrice').text('$' + parseFloat(work.price).toFixed(2));
+
+                // Stock badge
+                const stockBadge = $('#quickViewStock');
+                if (work.stock > 0) {
+                    stockBadge.removeClass('bg-danger').addClass('bg-success').text(work.stock + ' in stock');
+                } else {
+                    stockBadge.removeClass('bg-success').addClass('bg-danger').text('Out of stock');
+                }
+
+                // Category
+                if (work.category_name) {
+                    $('#quickViewCategory').html(`<span class="badge" style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: white;">${work.category_name}</span>`);
+                } else {
+                    $('#quickViewCategory').empty();
+                }
+
+                // Rating
+                let ratingHtml = '';
+                const rating = Math.round(work.rating);
+                for (let i = 1; i <= 5; i++) {
+                    ratingHtml += i <= rating ? '<i class="bi bi-star-fill text-warning"></i>' : '<i class="bi bi-star text-muted"></i>';
+                }
+                ratingHtml += `<small class="text-muted ms-2">(${parseFloat(work.rating).toFixed(1)})</small>`;
+                $('#quickViewRating').html(ratingHtml);
+
+                // Main image
+                const imagePath = work.image ? `assets/img/works/${work.image}` : 'assets/img/placeholder.jpg';
+                $('#quickViewMainImage').attr('src', imagePath).attr('alt', work.title);
+
+                // Sub images
+                const subImagesContainer = $('#quickViewSubImages');
+                subImagesContainer.empty();
+
+                if (work.sub_images && work.sub_images.length > 0) {
+                    work.sub_images.forEach((subImage, index) => {
+                        const img = $(`<img src="assets/img/works/${subImage}" alt="Product image ${index + 1}" class="${index === 0 ? 'active' : ''}">`);
+                        img.on('click', function() {
+                            $('#quickViewMainImage').attr('src', $(this).attr('src'));
+                            subImagesContainer.find('img').removeClass('active');
+                            $(this).addClass('active');
+                        });
+                        subImagesContainer.append(img);
+                    });
+                }
+
+                // Sizes
+                const sizesContainer = $('#quickViewSizes');
+                if (work.sizes && work.sizes.length > 0) {
+                    sizesContainer.show();
+                    const sizeOptions = sizesContainer.find('.size-options');
+                    sizeOptions.empty();
+
+                    work.sizes.forEach((size, index) => {
+                        const sizeBtn = $(`<div class="size-option ${index === 0 ? 'selected' : ''}" data-size="${size}">${size}</div>`);
+                        sizeBtn.on('click', function() {
+                            sizeOptions.find('.size-option').removeClass('selected');
+                            $(this).addClass('selected');
+                        });
+                        sizeOptions.append(sizeBtn);
+                    });
+                } else {
+                    sizesContainer.hide();
+                }
+
+                // Options (colors/variants)
+                const optionsContainer = $('#quickViewOptions');
+                if (work.options && work.options.length > 0) {
+                    optionsContainer.show();
+                    const colorOptions = optionsContainer.find('.color-options');
+                    colorOptions.empty();
+
+                    work.options.forEach((option, index) => {
+                        const optionBtn = $(`<div class="color-option ${index === 0 ? 'selected' : ''}" data-option="${option.value}" style="background-color: ${option.color || '#f3f4f6'};" title="${option.name || option.value}">${option.name ? option.name.charAt(0).toUpperCase() : ''}</div>`);
+                        optionBtn.on('click', function() {
+                            colorOptions.find('.color-option').removeClass('selected');
+                            $(this).addClass('selected');
+                        });
+                        colorOptions.append(optionBtn);
+                    });
+                } else {
+                    optionsContainer.hide();
+                }
+
+                // Quantity
+                $('#quickViewQuantity').attr('max', work.stock).val(1);
+
+                // Link
+                if (work.link) {
+                    $('#quickViewLink').show().find('a').attr('href', work.link);
+                } else {
+                    $('#quickViewLink').hide();
+                }
+
+                // Add to cart button
+                $('#quickViewAddToCart').off('click').on('click', function() {
+                    const quantity = parseInt($('#quickViewQuantity').val());
+                    const selectedSize = $('.size-option.selected').data('size') || null;
+                    const selectedOption = $('.color-option.selected').data('option') || null;
+
+                    addToCartWithOptions(work.id, quantity, selectedSize, selectedOption, work.title, work.price, work.stock);
+                });
+
+                // Add to wishlist button
+                $('#quickViewAddToWishlist').off('click').on('click', function() {
+                    addToWishlist(work.id, work.title);
+                });
+            }
+
+            function addToCartWithOptions(workId, quantity, size, option, title, price, stock) {
+                if (quantity > stock) {
+                    Swal.fire('Error', 'Quantity exceeds available stock', 'error');
+                    return;
+                }
+
+                $.ajax({
+                    url: 'admin/inc/action_cart.php',
+                    method: 'POST',
+                    data: {
+                        action: 'add',
+                        work_id: workId,
+                        quantity: quantity,
+                        size: size,
+                        option: option
+                    },
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            $('#quickViewModal').modal('hide');
+                            Swal.fire({
+                                toast: true,
+                                icon: 'success',
+                                title: response.message,
+                                position: 'top-end',
+                                showConfirmButton: false,
+                                timer: 2000
+                            });
+                            updateCartCount();
+                        } else {
+                            Swal.fire('Error', response.message, 'error');
+                        }
+                    },
+                    error: function() {
+                        Swal.fire('Error', 'Failed to add item to cart', 'error');
+                    }
+                });
+            }
+
             updateWishlistModal();
 
             $('.product-card').on('mouseenter', function() {

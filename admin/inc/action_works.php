@@ -37,6 +37,25 @@ switch ($action) {
         $stock = intval($_POST['stock'] ?? 0);
         $rating = floatval($_POST['rating'] ?? 0);
 
+        $sizes = [];
+        if (!empty($_POST['sizes'])) {
+            $sizes = array_map('trim', explode(',', $_POST['sizes']));
+            $sizes = array_filter($sizes); // Remove empty values
+        }
+
+        $options = [];
+        if (!empty($_POST['option_names'])) {
+            foreach ($_POST['option_names'] as $index => $name) {
+                if (!empty($name)) {
+                    $options[] = [
+                        'name' => clean_input($name),
+                        'color' => $_POST['option_colors'][$index] ?? '#000000',
+                        'value' => clean_input($_POST['option_values'][$index] ?? '')
+                    ];
+                }
+            }
+        }
+
         if (empty($title) || empty($description)) {
             send_response('error', 'Title and Description are required');
         }
@@ -76,14 +95,36 @@ switch ($action) {
             send_response('error', 'Failed to upload image. Please check folder permissions.');
         }
 
+        $sub_images = [];
+        if (isset($_FILES['sub_images']) && !empty($_FILES['sub_images']['name'][0])) {
+            foreach ($_FILES['sub_images']['name'] as $index => $sub_image_name) {
+                if ($_FILES['sub_images']['error'][$index] === UPLOAD_ERR_OK) {
+                    $sub_ext = strtolower(pathinfo($sub_image_name, PATHINFO_EXTENSION));
+                    if (in_array($sub_ext, $allowed_ext)) {
+                        $sub_filename = time() . '_' . $index . '_' . preg_replace('/[^a-zA-Z0-9_\-\.]/', '', basename($sub_image_name));
+                        $sub_target_path = $target_dir . $sub_filename;
+                        
+                        if (move_uploaded_file($_FILES['sub_images']['tmp_name'][$index], $sub_target_path)) {
+                            $sub_images[] = $sub_filename;
+                        }
+                    }
+                }
+            }
+        }
+
         $status = isset($_POST['status']) && ($_POST['status'] === 'on' || $_POST['status'] == 1) ? 1 : 0;
 
-        $sql = "INSERT INTO works (category_id, title, description, link, image, status, price, stock, rating, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())";
+        $sql = "INSERT INTO works (category_id, title, description, link, image, sub_images, sizes, options, status, price, stock, rating, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())";
         $stmt = $conn->prepare($sql);
         if (!$stmt) {
             send_response('error', 'Prepare failed: ' . $conn->error);
         }
-        $stmt->bind_param("issssiidi", $category_id, $title, $description, $link, $new_filename, $status, $price, $stock, $rating);
+        
+        $sizes_json = json_encode($sizes);
+        $sub_images_json = json_encode($sub_images);
+        $options_json = json_encode($options);
+        
+        $stmt->bind_param("isssssssidid", $category_id, $title, $description, $link, $new_filename, $sub_images_json, $sizes_json, $options_json, $status, $price, $stock, $rating);
         $stmt->execute();
 
         if ($stmt->affected_rows > 0) {
@@ -105,6 +146,25 @@ switch ($action) {
         $stock = intval($_POST['stock'] ?? 0);
         $rating = floatval($_POST['rating'] ?? 0);
 
+        $sizes = [];
+        if (!empty($_POST['sizes'])) {
+            $sizes = array_map('trim', explode(',', $_POST['sizes']));
+            $sizes = array_filter($sizes);
+        }
+
+        $options = [];
+        if (!empty($_POST['option_names'])) {
+            foreach ($_POST['option_names'] as $index => $name) {
+                if (!empty($name)) {
+                    $options[] = [
+                        'name' => clean_input($name),
+                        'color' => $_POST['option_colors'][$index] ?? '#000000',
+                        'value' => clean_input($_POST['option_values'][$index] ?? '')
+                    ];
+                }
+            }
+        }
+
         if (empty($id) || empty($title) || empty($description)) {
             send_response('error', 'ID, Title, and Description are required');
         }
@@ -118,6 +178,13 @@ switch ($action) {
         if ($rating < 0 || $rating > 5) {
             send_response('error', 'Rating must be between 0 and 5');
         }
+
+        // Get current sub_images
+        $current_work = $conn->prepare("SELECT sub_images FROM works WHERE id = ?");
+        $current_work->bind_param("i", $id);
+        $current_work->execute();
+        $current_result = $current_work->get_result()->fetch_assoc();
+        $current_sub_images = !empty($current_result['sub_images']) ? json_decode($current_result['sub_images'], true) : [];
 
         $new_image_name = $old_image;
         if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
@@ -147,14 +214,39 @@ switch ($action) {
             }
         }
 
+        $sub_images = $current_sub_images; // Keep existing sub images
+        if (isset($_FILES['sub_images']) && !empty($_FILES['sub_images']['name'][0])) {
+            $target_dir = "../../assets/img/works/";
+            $allowed_ext = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+            
+            foreach ($_FILES['sub_images']['name'] as $index => $sub_image_name) {
+                if ($_FILES['sub_images']['error'][$index] === UPLOAD_ERR_OK) {
+                    $sub_ext = strtolower(pathinfo($sub_image_name, PATHINFO_EXTENSION));
+                    if (in_array($sub_ext, $allowed_ext)) {
+                        $sub_filename = time() . '_' . $index . '_' . preg_replace('/[^a-zA-Z0-9_\-\.]/', '', basename($sub_image_name));
+                        $sub_target_path = $target_dir . $sub_filename;
+                        
+                        if (move_uploaded_file($_FILES['sub_images']['tmp_name'][$index], $sub_target_path)) {
+                            $sub_images[] = $sub_filename;
+                        }
+                    }
+                }
+            }
+        }
+
         $status = isset($_POST['status']) && ($_POST['status'] === 'on' || $_POST['status'] == 1) ? 1 : 0;
 
-        $sql = "UPDATE works SET category_id = ?, title = ?, description = ?, link = ?, image = ?, status = ?, price = ?, stock = ?, rating = ? WHERE id = ?";
+        $sql = "UPDATE works SET category_id = ?, title = ?, description = ?, link = ?, image = ?, sub_images = ?, sizes = ?, options = ?, status = ?, price = ?, stock = ?, rating = ? WHERE id = ?";
         $stmt = $conn->prepare($sql);
         if (!$stmt) {
             send_response('error', 'Prepare failed: ' . $conn->error);
         }
-        $stmt->bind_param("issssiidii", $category_id, $title, $description, $link, $new_image_name, $status, $price, $stock, $rating, $id);
+        
+        $sizes_json = json_encode($sizes);
+        $sub_images_json = json_encode($sub_images);
+        $options_json = json_encode($options);
+        
+        $stmt->bind_param("isssssssididi", $category_id, $title, $description, $link, $new_image_name, $sub_images_json, $sizes_json, $options_json, $status, $price, $stock, $rating, $id);
         $stmt->execute();
 
         if ($stmt->affected_rows >= 0) {
@@ -162,6 +254,49 @@ switch ($action) {
             send_response('success', 'Work updated successfully', '/task-project/admin/works.php');
         } else {
             send_response('error', 'Database error: ' . $stmt->error);
+        }
+        break;
+
+    case 'remove_sub_image':
+        $work_id = intval($_POST['work_id'] ?? 0);
+        $image_name = clean_input($_POST['image_name'] ?? '');
+
+        if ($work_id <= 0 || empty($image_name)) {
+            send_response('error', 'Invalid parameters');
+        }
+
+        // Get current sub_images
+        $stmt = $conn->prepare("SELECT sub_images FROM works WHERE id = ?");
+        $stmt->bind_param("i", $work_id);
+        $stmt->execute();
+        $result = $stmt->get_result()->fetch_assoc();
+        
+        if (!$result) {
+            send_response('error', 'Work not found');
+        }
+
+        $sub_images = !empty($result['sub_images']) ? json_decode($result['sub_images'], true) : [];
+        
+        // Remove the image from array
+        $sub_images = array_filter($sub_images, function($img) use ($image_name) {
+            return $img !== $image_name;
+        });
+        
+        // Update database
+        $update_stmt = $conn->prepare("UPDATE works SET sub_images = ? WHERE id = ?");
+        $sub_images_json = json_encode(array_values($sub_images));
+        $update_stmt->bind_param("si", $sub_images_json, $work_id);
+        
+        if ($update_stmt->execute()) {
+            // Delete physical file
+            $file_path = "../../assets/img/works/" . $image_name;
+            if (file_exists($file_path)) {
+                @unlink($file_path);
+            }
+            
+            send_response('success', 'Image removed successfully');
+        } else {
+            send_response('error', 'Failed to remove image');
         }
         break;
 
@@ -187,7 +322,7 @@ switch ($action) {
             }
         }
 
-        $sql = "SELECT title, image FROM works WHERE id = ?";
+        $sql = "SELECT title, image, sub_images FROM works WHERE id = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("i", $id);
         $stmt->execute();
@@ -198,6 +333,16 @@ switch ($action) {
             $image_path = "../../assets/img/works/" . $work['image'];
             if (file_exists($image_path)) {
                 @unlink($image_path);
+            }
+        }
+
+        if ($work && !empty($work['sub_images'])) {
+            $sub_images = json_decode($work['sub_images'], true);
+            foreach ($sub_images as $sub_image) {
+                $sub_image_path = "../../assets/img/works/" . $sub_image;
+                if (file_exists($sub_image_path)) {
+                    @unlink($sub_image_path);
+                }
             }
         }
 
@@ -369,3 +514,4 @@ switch ($action) {
     default:
         send_response('error', 'Invalid action');
 }
+?>

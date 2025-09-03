@@ -239,7 +239,39 @@
                 <input type="file" name="image" class="form-control" accept="image/*" required>
             </div>
 
-            <!-- Added inventory fields to create form -->
+            <!-- Added sub images upload field -->
+            <div class="mb-3">
+                <label class="form-label">Additional Images (Optional)</label>
+                <input type="file" name="sub_images[]" class="form-control" accept="image/*" multiple>
+                <small class="text-muted">You can select multiple images for product gallery</small>
+            </div>
+
+            <!-- Added sizes field -->
+            <div class="mb-3">
+                <label class="form-label">Available Sizes (Optional)</label>
+                <input type="text" name="sizes" class="form-control" placeholder="e.g., S, M, L, XL or 32, 34, 36, 38">
+                <small class="text-muted">Separate sizes with commas</small>
+            </div>
+
+            <!-- Added color/options field -->
+            <div class="mb-3">
+                <label class="form-label">Color/Variant Options (Optional)</label>
+                <div id="optionsContainer">
+                    <div class="option-row d-flex gap-2 mb-2">
+                        <input type="text" name="option_names[]" class="form-control" placeholder="Option name (e.g., Red, Blue)">
+                        <input type="color" name="option_colors[]" class="form-control form-control-color" style="width: 60px;">
+                        <input type="text" name="option_values[]" class="form-control" placeholder="Value (e.g., red, blue)">
+                        <button type="button" class="btn btn-outline-danger btn-sm remove-option" style="display: none;">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-outline-primary btn-sm" id="addOption">
+                    <i class="fas fa-plus me-1"></i> Add Option
+                </button>
+                <small class="text-muted d-block mt-1">Add color or variant options for your product</small>
+            </div>
+
             <div class="row">
                 <div class="col-md-4">
                     <div class="mb-3">
@@ -284,6 +316,35 @@
 
 <script>
     $(document).ready(function() {
+        $('#addOption').on('click', function() {
+            const optionRow = `
+                <div class="option-row d-flex gap-2 mb-2">
+                    <input type="text" name="option_names[]" class="form-control" placeholder="Option name (e.g., Red, Blue)">
+                    <input type="color" name="option_colors[]" class="form-control form-control-color" style="width: 60px;">
+                    <input type="text" name="option_values[]" class="form-control" placeholder="Value (e.g., red, blue)">
+                    <button type="button" class="btn btn-outline-danger btn-sm remove-option">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+            $('#optionsContainer').append(optionRow);
+            updateRemoveButtons();
+        });
+
+        $(document).on('click', '.remove-option', function() {
+            $(this).closest('.option-row').remove();
+            updateRemoveButtons();
+        });
+
+        function updateRemoveButtons() {
+            const rows = $('.option-row');
+            if (rows.length > 1) {
+                $('.remove-option').show();
+            } else {
+                $('.remove-option').hide();
+            }
+        }
+
         $('#createWorkForm').on('submit', function(e) {
             e.preventDefault();
 
