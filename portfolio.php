@@ -1203,7 +1203,7 @@ $user_role = $is_logged_in ? getUserRole() : null;
                                     <button class="btn btn-outline-primary btn-sm quick-view-btn"
                                         data-id="<?= $row['id'] ?>"
                                         style="border-radius: 10px; font-weight: 600; padding: 8px 12px;">
-                                        <i class="bi bi-eye me-1"></i> Quick View
+                                        <i class="bi bi-eye me-1"></i>
                                     </button>
                                     <!-- Added smaller, more prominent cart button -->
                                     <button class="btn btn-primary-modern btn-sm add-to-cart"
@@ -1212,7 +1212,7 @@ $user_role = $is_logged_in ? getUserRole() : null;
                                         style="background: linear-gradient(135deg, #84cc16 0%, #65a30d 100%); 
                                                    border: none; border-radius: 10px; font-weight: 600; 
                                                    padding: 8px 16px; box-shadow: 0 2px 8px rgba(132, 204, 22, 0.3);">
-                                        <i class="bi bi-cart-plus me-1"></i> Add
+                                        <i class="bi bi-cart-plus me-1"></i>
                                     </button>
                                 </div>
 
