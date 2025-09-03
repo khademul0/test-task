@@ -32,6 +32,22 @@ if (!$work) {
             <input type="text" name="title" value="<?= htmlspecialchars($work['title']) ?>" class="form-control" required>
         </div>
 
+         Added category selection dropdown with current value selected 
+        <div class="mb-3">
+            <label class="form-label">Category</label>
+            <select name="category_id" class="form-select">
+                <option value="">Select Category (Optional)</option>
+                <?php
+                $categories = $conn->query("SELECT id, name FROM categories WHERE status = 1 ORDER BY name");
+                while ($category = $categories->fetch_assoc()):
+                ?>
+                    <option value="<?= $category['id'] ?>" <?= $work['category_id'] == $category['id'] ? 'selected' : '' ?>>
+                        <?= htmlspecialchars($category['name']) ?>
+                    </option>
+                <?php endwhile; ?>
+            </select>
+        </div>
+
         <div class="mb-3">
             <label class="form-label">Description <span class="text-danger">*</span></label>
             <textarea name="description" rows="5" class="form-control" required><?= htmlspecialchars($work['description']) ?></textarea>
@@ -56,7 +72,7 @@ if (!$work) {
             <input type="file" name="image" class="form-control" accept="image/*">
         </div>
 
-        <!-- Added inventory fields to edit form -->
+         Added inventory fields to edit form 
         <div class="row">
             <div class="col-md-4">
                 <div class="mb-3">

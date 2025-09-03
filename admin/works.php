@@ -771,6 +771,17 @@ checkUserRole('admin');
                     All Works
                 </h4>
                 <div class="bulk-actions">
+                    <!-- Added category filter dropdown -->
+                    <select class="form-select" id="categoryFilter" style="width: 200px; margin-right: 1rem;">
+                        <option value="">All Categories</option>
+                        <?php
+                        $categories = $conn->query("SELECT id, name FROM categories WHERE status = 1 ORDER BY name");
+                        while ($category = $categories->fetch_assoc()):
+                        ?>
+                            <option value="<?= $category['id'] ?>"><?= htmlspecialchars($category['name']) ?></option>
+                        <?php endwhile; ?>
+                    </select>
+                    
                     <button class="btn btn-secondary" onclick="openBulkInventoryModal()">
                         <i class="fas fa-boxes"></i>
                         Bulk Inventory
@@ -789,6 +800,8 @@ checkUserRole('admin');
                             <th>#</th>
                             <th>Thumbnail</th>
                             <th>Title</th>
+                            <!-- Added Category column -->
+                            <th>Category</th>
                             <th>Description</th>
                             <th>Link</th>
                             <!-- Added inventory columns -->
@@ -802,11 +815,11 @@ checkUserRole('admin');
                     </thead>
                     <tbody>
                         <?php
-                        $works = $conn->query("SELECT * FROM works ORDER BY id DESC");
+                        $works = $conn->query("SELECT w.*, c.name as category_name FROM works w LEFT JOIN categories c ON w.category_id = c.id ORDER BY w.id DESC");
                         $i = 1;
                         while ($work = $works->fetch_assoc()):
                         ?>
-                            <tr>
+                            <tr data-category="<?= $work['category_id'] ?? '' ?>">
                                 <td><?= $i++ ?></td>
                                 <td>
                                     <?php if (!empty($work['image']) && file_exists("../assets/img/works/" . $work['image'])): ?>
@@ -816,6 +829,16 @@ checkUserRole('admin');
                                     <?php endif; ?>
                                 </td>
                                 <td><?= htmlspecialchars($work['title']) ?></td>
+                                <!-- Added category display -->
+                                <td>
+                                    <?php if (!empty($work['category_name'])): ?>
+                                        <span class="badge" style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: white;">
+                                            <?= htmlspecialchars($work['category_name']) ?>
+                                        </span>
+                                    <?php else: ?>
+                                        <span class="text-muted">-</span>
+                                    <?php endif; ?>
+                                </td>
                                 <td><?= htmlspecialchars(substr($work['description'], 0, 50)) ?>...</td>
                                 <td>
                                     <?php if (!empty($work['link'])): ?>
@@ -887,7 +910,21 @@ checkUserRole('admin');
 <script>
     $(document).ready(function() {
         // Initialize DataTables
-        $('#datatables').DataTable();
+        var table = $('#datatables').DataTable();
+
+        $('#categoryFilter').on('change', function() {
+            var categoryId = $(this).val();
+            
+            if (categoryId === '') {
+                // Show all rows
+                $('tbody tr').show();
+            } else {
+                // Hide all rows first
+                $('tbody tr').hide();
+                // Show only rows with matching category
+                $('tbody tr[data-category="' + categoryId + '"]').show();
+            }
+        });
 
         // Sidebar toggle functionality
         $('#sidebarToggle').click(function() {
@@ -1284,3 +1321,5 @@ checkUserRole('admin');
         });
     }
 </script>
+</body>
+</html>

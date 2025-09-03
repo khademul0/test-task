@@ -1001,7 +1001,19 @@ $user_role = $is_logged_in ? getUserRole() : null;
         <!-- Modern filter section -->
         <div class="filter-card fade-in">
             <div class="row g-2">
-                <div class="col-md-4">
+                <div class="col-md-3">
+                    <label class="filter-label">Category</label>
+                    <select class="form-select form-select-modern" id="categoryFilter">
+                        <option value="">All Categories</option>
+                        <?php
+                        $categories = $conn->query("SELECT id, name FROM categories WHERE status = 1 ORDER BY name");
+                        while ($category = $categories->fetch_assoc()):
+                        ?>
+                            <option value="<?= $category['id'] ?>"><?= htmlspecialchars($category['name']) ?></option>
+                        <?php endwhile; ?>
+                    </select>
+                </div>
+                <div class="col-md-3">
                     <label class="filter-label">Price Range ($0 - $500)</label>
                     <input type="range" class="form-range form-range-modern w-100" id="priceRange" min="0" max="500" value="500">
                     <div class="d-flex justify-content-between mt-2">
@@ -1009,7 +1021,7 @@ $user_role = $is_logged_in ? getUserRole() : null;
                         <small class="text-muted" id="priceValue">$500</small>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <label class="filter-label">Minimum Rating</label>
                     <select class="form-select form-select-modern" id="ratingFilter">
                         <option value="0">All Ratings</option>
@@ -1020,7 +1032,7 @@ $user_role = $is_logged_in ? getUserRole() : null;
                         <option value="5">5 Stars Only</option>
                     </select>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <label class="filter-label">Sort By</label>
                     <select class="form-select form-select-modern" id="sortOption">
                         <option value="default">Featured</option>
@@ -1035,7 +1047,7 @@ $user_role = $is_logged_in ? getUserRole() : null;
         <!-- Modern product grid -->
         <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4 g-4" id="productGrid">
             <?php
-            $stmt = $conn->prepare("SELECT id, title, description, image, link, price, stock, rating, created_at FROM works WHERE status = ? ORDER BY id DESC");
+            $stmt = $conn->prepare("SELECT w.id, w.title, w.description, w.image, w.link, w.price, w.stock, w.rating, w.created_at, w.category_id, c.name as category_name FROM works w LEFT JOIN categories c ON w.category_id = c.id WHERE w.status = ? ORDER BY w.id DESC");
             $status = 1;
             $stmt->bind_param("i", $status);
             $stmt->execute();
@@ -1068,7 +1080,7 @@ $user_role = $is_logged_in ? getUserRole() : null;
                     }
                     $is_wishlisted = $is_logged_in && in_array((int)$row['id'], $wishlist_items);
             ?>
-                    <div class="col product-item fade-in" data-price="<?= $row['price'] ?>" data-rating="<?= $row['rating'] ?>">
+                    <div class="col product-item fade-in" data-price="<?= $row['price'] ?>" data-rating="<?= $row['rating'] ?>" data-category="<?= $row['category_id'] ?? '' ?>">
                         <div class="card product-card border-0">
                             <div class="position-relative overflow-hidden">
                                 <?php if ($image_exists): ?>
@@ -1091,6 +1103,16 @@ $user_role = $is_logged_in ? getUserRole() : null;
 
                             <div class="product-body">
                                 <h5 class="product-title"><?= htmlspecialchars($row['title']) ?></h5>
+
+                                <!-- Added category badge display -->
+                                <?php if (!empty($row['category_name'])): ?>
+                                    <div class="mb-2">
+                                        <span class="badge" style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: white; font-size: 0.7rem;">
+                                            <?= htmlspecialchars($row['category_name']) ?>
+                                        </span>
+                                    </div>
+                                <?php endif; ?>
+
                                 <p class="product-description"><?= htmlspecialchars(substr($row['description'], 0, 80)) . (strlen($row['description']) > 80 ? '...' : '') ?></p>
 
                                 <div class="d-flex align-items-center justify-content-between mb-3">
@@ -2095,17 +2117,30 @@ $user_role = $is_logged_in ? getUserRole() : null;
                 });
             });
 
-            // Filter and sort
             function filterAndSortProducts() {
                 let maxPrice = parseInt($('#priceRange').val());
                 let minRating = parseInt($('#ratingFilter').val());
                 let sortOption = $('#sortOption').val();
+                let selectedCategory = $('#categoryFilter').val();
 
                 let products = $('.product-item').get();
                 products.forEach(product => {
                     let price = parseFloat($(product).data('price'));
                     let rating = parseFloat($(product).data('rating'));
-                    if (price <= maxPrice && rating >= minRating) {
+                    let category = $(product).data('category').toString();
+
+                    let showProduct = true;
+
+                    // Price filter
+                    if (price > maxPrice) showProduct = false;
+
+                    // Rating filter
+                    if (rating < minRating) showProduct = false;
+
+                    // Category filter
+                    if (selectedCategory !== '' && category !== selectedCategory) showProduct = false;
+
+                    if (showProduct) {
                         $(product).show();
                     } else {
                         $(product).hide();
@@ -2129,7 +2164,7 @@ $user_role = $is_logged_in ? getUserRole() : null;
                 }
             }
 
-            $('#priceRange, #ratingFilter, #sortOption').on('change', filterAndSortProducts);
+            $('#priceRange, #ratingFilter, #sortOption, #categoryFilter').on('change', filterAndSortProducts);
 
             // Initialize modals
             updateCartCount();

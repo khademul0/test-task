@@ -209,6 +209,21 @@
                 <input type="text" name="title" class="form-control" required>
             </div>
 
+            <!-- Added category selection dropdown -->
+            <div class="mb-3">
+                <label class="form-label">Category</label>
+                <select name="category_id" class="form-select">
+                    <option value="">Select Category (Optional)</option>
+                    <?php
+                    require_once '../app/db.php';
+                    $categories = $conn->query("SELECT id, name FROM categories WHERE status = 1 ORDER BY name");
+                    while ($category = $categories->fetch_assoc()):
+                    ?>
+                        <option value="<?= $category['id'] ?>"><?= htmlspecialchars($category['name']) ?></option>
+                    <?php endwhile; ?>
+                </select>
+            </div>
+
             <div class="mb-3">
                 <label class="form-label">Description <span class="text-danger">*</span></label>
                 <textarea name="description" rows="5" class="form-control" required></textarea>

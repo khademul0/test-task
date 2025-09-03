@@ -32,6 +32,7 @@ switch ($action) {
         $title = clean_input($_POST['title'] ?? '');
         $description = clean_input($_POST['description'] ?? '');
         $link = clean_input($_POST['link'] ?? '');
+        $category_id = !empty($_POST['category_id']) ? intval($_POST['category_id']) : null;
         $price = floatval($_POST['price'] ?? 0);
         $stock = intval($_POST['stock'] ?? 0);
         $rating = floatval($_POST['rating'] ?? 0);
@@ -77,12 +78,12 @@ switch ($action) {
 
         $status = isset($_POST['status']) && ($_POST['status'] === 'on' || $_POST['status'] == 1) ? 1 : 0;
 
-        $sql = "INSERT INTO works (title, description, link, image, status, price, stock, rating, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())";
+        $sql = "INSERT INTO works (category_id, title, description, link, image, status, price, stock, rating, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())";
         $stmt = $conn->prepare($sql);
         if (!$stmt) {
             send_response('error', 'Prepare failed: ' . $conn->error);
         }
-        $stmt->bind_param("ssssiidi", $title, $description, $link, $new_filename, $status, $price, $stock, $rating);
+        $stmt->bind_param("issssiidi", $category_id, $title, $description, $link, $new_filename, $status, $price, $stock, $rating);
         $stmt->execute();
 
         if ($stmt->affected_rows > 0) {
@@ -99,6 +100,7 @@ switch ($action) {
         $description = clean_input($_POST['description'] ?? '');
         $link = clean_input($_POST['link'] ?? '');
         $old_image = $_POST['old_image'] ?? '';
+        $category_id = !empty($_POST['category_id']) ? intval($_POST['category_id']) : null;
         $price = floatval($_POST['price'] ?? 0);
         $stock = intval($_POST['stock'] ?? 0);
         $rating = floatval($_POST['rating'] ?? 0);
@@ -140,7 +142,6 @@ switch ($action) {
                 send_response('error', 'Failed to upload new image.');
             }
 
-            // Delete old image if exists
             if (!empty($old_image) && file_exists($target_dir . $old_image)) {
                 @unlink($target_dir . $old_image);
             }
@@ -148,12 +149,12 @@ switch ($action) {
 
         $status = isset($_POST['status']) && ($_POST['status'] === 'on' || $_POST['status'] == 1) ? 1 : 0;
 
-        $sql = "UPDATE works SET title = ?, description = ?, link = ?, image = ?, status = ?, price = ?, stock = ?, rating = ? WHERE id = ?";
+        $sql = "UPDATE works SET category_id = ?, title = ?, description = ?, link = ?, image = ?, status = ?, price = ?, stock = ?, rating = ? WHERE id = ?";
         $stmt = $conn->prepare($sql);
         if (!$stmt) {
             send_response('error', 'Prepare failed: ' . $conn->error);
         }
-        $stmt->bind_param("ssssiidii", $title, $description, $link, $new_image_name, $status, $price, $stock, $rating, $id);
+        $stmt->bind_param("issssiidii", $category_id, $title, $description, $link, $new_image_name, $status, $price, $stock, $rating, $id);
         $stmt->execute();
 
         if ($stmt->affected_rows >= 0) {
@@ -171,7 +172,6 @@ switch ($action) {
             send_response('error', 'Invalid ID');
         }
 
-        // Step 1: Delete related records from 'cart', 'order_items', and 'wishlist' first.
         $tables = [
             'cart' => 'work_id',
             'order_items' => 'work_id',
@@ -187,7 +187,6 @@ switch ($action) {
             }
         }
 
-        // Step 2: Delete the associated image if exists
         $sql = "SELECT title, image FROM works WHERE id = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("i", $id);
@@ -202,7 +201,6 @@ switch ($action) {
             }
         }
 
-        // Step 3: Now delete the work from the 'works' table
         $deleteWorkSql = "DELETE FROM works WHERE id = ?";
         $deleteWorkStmt = $conn->prepare($deleteWorkSql);
         $deleteWorkStmt->bind_param("i", $id);
@@ -216,13 +214,11 @@ switch ($action) {
         break;
 
     case 'toggle_status':
-        // ✅ FIXED: no need to pass "status" from client
         $id = intval($_POST['id'] ?? 0);
         if ($id <= 0) {
             send_response('error', 'Invalid parameters');
         }
 
-        // Get current status
         $stmt = $conn->prepare("SELECT title, status FROM works WHERE id = ?");
         if (!$stmt) {
             send_response('error', 'Prepare failed: ' . $conn->error);
@@ -238,10 +234,8 @@ switch ($action) {
         $row = $res->fetch_assoc();
         $current_status = (int) ($row['status'] ?? 0);
 
-        // Flip
         $new_status = $current_status === 1 ? 0 : 1;
 
-        // Update
         $up = $conn->prepare("UPDATE works SET status = ? WHERE id = ?");
         if (!$up) {
             send_response('error', 'Prepare failed: ' . $conn->error);
@@ -251,7 +245,6 @@ switch ($action) {
             send_response('error', 'Failed to update status');
         }
 
-        // Log
         $status_text = $new_status ? 'Active' : 'Inactive';
         $conn->query("INSERT INTO activity_logs (user_id, action, description, created_at) 
                       VALUES ($user_id, 'Toggle Work Status', 'Changed status of work: " . addslashes($row['title'] ?? ('ID ' . $id)) . " to $status_text', NOW())");
@@ -268,7 +261,6 @@ switch ($action) {
             send_response('error', 'Invalid parameters');
         }
 
-        // Validate field and value
         switch ($field) {
             case 'price':
                 $value = floatval($value);
@@ -292,7 +284,6 @@ switch ($action) {
                 send_response('error', 'Invalid field');
         }
 
-        // Get work title for logging
         $stmt = $conn->prepare("SELECT title FROM works WHERE id = ?");
         $stmt->bind_param("i", $id);
         $stmt->execute();
@@ -303,7 +294,6 @@ switch ($action) {
             send_response('error', 'Work not found');
         }
 
-        // Update the field
         $sql = "UPDATE works SET $field = ? WHERE id = ?";
         $stmt = $conn->prepare($sql);
 
@@ -345,20 +335,17 @@ switch ($action) {
                 continue;
             }
 
-            // Validate values
             if ($price < 0 || $stock < 0 || $rating < 0 || $rating > 5) {
                 $error_count++;
                 $errors[] = "Invalid values for work ID: $id";
                 continue;
             }
 
-            // Update the work
             $stmt = $conn->prepare("UPDATE works SET price = ?, stock = ?, rating = ? WHERE id = ?");
             $stmt->bind_param("didi", $price, $stock, $rating, $id);
 
             if ($stmt->execute()) {
                 $success_count++;
-                // Log the update
                 $conn->query("INSERT INTO activity_logs (user_id, action, description, created_at) 
                               VALUES ($user_id, 'Bulk Update Inventory', 'Updated inventory for work ID: $id', NOW())");
             } else {
